@@ -1,7 +1,24 @@
+This file is part of DecimalsRangeRegexpGenerator.
+
+DecimalsRangeRegexpGenerator is free software:
+you can redistribute it and/or modify it
+under the terms of the GNU Affero General Public License
+as published by the Free Software Foundation,
+either version 3 of the License, or (at your option) any later version.
+
+DecimalsRangeRegexpGenerator is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+See the GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License along with DecimalsRangeRegexpGenerator.
+If not, see <https://www.gnu.org/licenses/>
+
+©Copyright 2022 Laurent Lyaudet
+
 # DecimalsRangeRegexpGenerator
 Handle min, max and step to produce a regular expression for ranges of decimal numbers.
 
-Several integers range regular expression generators can be found on github,
+Several integers range regular expression generators can be found on GitHub,
 but they do not handle decimal numbers.
 (Decimal numbers are the subset of the rational numbers that can be written
 as n/10^k where n and k are integers.)
