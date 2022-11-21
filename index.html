@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>DecimalsRangeRegexpGenerator</title>
+
+</head>
+<body>
+  <form>
+    <div>
+      <label for="min">Min (optional): </label>
+      <input
+        type="text"
+        inputmode="numeric"
+        pattern="\d+(\.\d+)?"
+        id="min"
+        name="min"
+      >
+    </div>
+    <div>
+      <label for="max">Max (optional): </label>
+      <input
+        type="text"
+        inputmode="numeric"
+        pattern="\d+(\.\d+)?"
+        id="max"
+        name="max"
+      >
+    </div>
+    <div>
+      <label for="step">Step (optional, it will default to arbitrary precision and not 1): </label>
+      <input
+        type="text"
+        inputmode="numeric"
+        pattern="\d+(\.\d+)?"
+        id="step"
+        name="step"
+      >
+    </div>
+    <button type="submit">Generate (Not Implemented Yet)</button>
+  </form>
+
+</body>
+</html>
