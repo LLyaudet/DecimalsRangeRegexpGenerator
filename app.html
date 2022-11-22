@@ -37,7 +37,6 @@
       <input
         type="text"
         inputmode="numeric"
-        pattern="\d+(\.\d+)?"
         id="min"
         name="min"
       >
@@ -56,7 +55,6 @@
       <input
         type="text"
         inputmode="numeric"
-        pattern="\d+(\.\d+)?"
         id="max"
         name="max"
       >
@@ -253,6 +251,13 @@
       allow_positive_number_with_plus: false,
     };
     let error_message = "";
+    let decimal_digits = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"];
+    let zero_digit = "0";
+    let other_digits = ["1", "2", "3", "4", "5", "6", "7", "8", "9"];
+    let all_digits = [zero_digit, ...other_digits];
+    let plus_sign = "+";
+    let minus_sign = "-";
+    let sign_signs = [plus_sign, minus_sign];
 
     function set_text_parameter_in_form(parameter_name){
       if(
@@ -291,6 +296,7 @@
             error_message += (
               "Value \"" + url_search_params.get(parameter_name) + "\""
               + " for " + parameter_name + " is incorrect (probably too big).\n"
+              + "<br>"
             );
           }
         }
@@ -308,6 +314,7 @@
     if(parameters.decimal_separators === ""){
       parameters.decimal_separators = ".";
     }
+    parameters.decimal_separators = Array.from(parameters.decimal_separators);
     set_positive_integer_parameter_in_form("min_number_of_digits_before_decimal_separator");
     set_positive_integer_parameter_in_form("max_number_of_digits_before_decimal_separator");
     set_positive_integer_parameter_in_form("min_number_of_digits_after_decimal_separator");
@@ -318,6 +325,127 @@
     set_checkbox_parameter_in_form("allow_zero_with_plus");
     set_checkbox_parameter_in_form("allow_leading_zeros");
     set_checkbox_parameter_in_form("allow_positive_number_with_plus");
+
+    for(let decimal_separator of parameters.decimal_separators){
+      if(all_digits.includes(decimal_separator)){
+        error_message += (
+          "You gave a decimal separator that is a digit"
+          + " (\"" + decimal_separator + "\").\n"
+          + "<br>"
+        );
+      }
+      if(sign_signs.includes(decimal_separator)){
+        error_message += (
+          "You gave a decimal separator that is a sign"
+          + " (\"" + decimal_separator + "\").\n"
+          + "<br>"
+        );
+      }
+    }
+    let all_characters = [
+      ...all_digits,
+      ...sign_signs,
+      ...parameters.decimal_separators,
+    ];
+
+    function canonize_number(some_number_string, number_name){
+      let digits_array = Array.from(some_number_string);
+      let digits_array_result = [];
+      const debug = false;
+      if(debug){ console.log("canonize_number() digits_array1", digits_array); }
+
+      // Check that all characters are allowed
+      for(let digit of digits_array){
+        if(!all_characters.includes(digit)){
+          error_message += (
+            "You gave a " + number_name + " number with unknown character \"" + digit + "\".\n"
+            + "<br>"
+          );
+          return null;
+        }
+      }
+
+      // Check that there is at most one plus sign or one minus sign and that is the first character
+      let first = true;
+      for(let digit of digits_array){
+        if(digit !== plus_sign){
+          digits_array_result.push(digit);
+        }
+        if(sign_signs.includes(digit)){
+          if(!first){
+            error_message += (
+              "You gave a " + number_name + " number with wrong sign.\n"
+              + "<br>"
+            );
+            return null;
+          }
+        }
+        first = false;
+      }
+      if(debug){ console.log("canonize_number() digits_array_result1", digits_array_result); }
+
+      // Filter out leading zeros except before decimal separator
+      digits_array = digits_array_result;
+      digits_array_result = [];
+      let non_zero_digit_or_decimal_separator_found = false;
+      for(let digit of digits_array){
+        if(non_zero_digit_or_decimal_separator_found){
+          digits_array_result.push(digit);
+          continue;
+        }
+        if(other_digits.includes(digit)){
+          non_zero_digit_or_decimal_separator_found = true;
+          digits_array_result.push(digit);
+          continue;
+        }
+        if(parameters.decimal_separators.includes(digit)){
+          non_zero_digit_or_decimal_separator_found = true;
+          digits_array_result.push(zero_digit);
+          digits_array_result.push(digit);
+        }
+      }
+      if(debug){ console.log("canonize_number() digits_array_result2", digits_array_result); }
+      let number_of_decimal_separators = digits_array_result.reduce(
+        (acc, digit) => {
+          if(parameters.decimal_separators.includes(digit)){
+            ++acc;
+          }
+          return acc;
+        },
+        0,
+      )
+      if(debug){ console.log("canonize_number() number_of_decimal_separators", number_of_decimal_separators); }
+      if(number_of_decimal_separators > 1){
+        error_message += (
+          "You gave a " + number_name + " number with too many decimal separators.\n"
+          + "<br>"
+        );
+        return null;
+      }
+
+      if(number_of_decimal_separators === 1){
+        while(true){
+          let digit = digits_array_result.pop();
+          if(digit === zero_digit){
+            continue;
+          }
+          if(!parameters.decimal_separators.includes(digit)){
+            digits_array_result.push(digit);
+          }
+          break;
+        }
+      }
+      if(debug){ console.log("canonize_number() digits_array_result3", digits_array_result); }
+
+      return digits_array_result;
+    }
+
+    if(parameters.min !== ""){
+      parameters.min = canonize_number(parameters.min, "min");
+    }
+    if(parameters.max !== ""){
+      parameters.max = canonize_number(parameters.max, "max");
+    }
 
     if(error_message !== ""){
       document.getElementById("error").innerHTML = error_message;
