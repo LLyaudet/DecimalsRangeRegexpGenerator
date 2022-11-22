@@ -122,7 +122,7 @@
       <input
         type="text"
         inputmode="numeric"
-        pattern="\d+"
+        pattern="[1-9]\d*"
         id="min_number_of_digits_before_decimal_separator"
         name="min_number_of_digits_before_decimal_separator"
       >
@@ -132,7 +132,7 @@
       <input
         type="text"
         inputmode="numeric"
-        pattern="\d+"
+        pattern="[1-9]\d*"
         id="max_number_of_digits_before_decimal_separator"
         name="max_number_of_digits_before_decimal_separator"
       >
@@ -142,7 +142,7 @@
       <input
         type="text"
         inputmode="numeric"
-        pattern="\d+"
+        pattern="[1-9]\d*"
         id="min_number_of_digits_after_decimal_separator"
         name="min_number_of_digits_after_decimal_separator"
       >
@@ -152,7 +152,7 @@
       <input
         type="text"
         inputmode="numeric"
-        pattern="\d+"
+        pattern="[1-9]\d*"
         id="max_number_of_digits_after_decimal_separator"
         name="max_number_of_digits_after_decimal_separator"
       >
@@ -162,7 +162,7 @@
       <input
         type="text"
         inputmode="numeric"
-        pattern="\d+"
+        pattern="[1-9]\d*"
         id="min_number_of_digits"
         name="min_number_of_digits"
       >
@@ -172,7 +172,7 @@
       <input
         type="text"
         inputmode="numeric"
-        pattern="\d+"
+        pattern="[1-9]\d*"
         id="max_number_of_digits"
         name="max_number_of_digits"
       >
@@ -210,6 +210,16 @@
     <button type="submit">Generate (Not Implemented Yet)</button>
   </form>
 
+  <hr>
+  <h4>Error message</h4>
+  <div id="error" style="color: red;"></div>
+
+  <hr>
+  <h4>Result</h4>
+  <div>
+    <textarea id="result"></textarea>
+  </div>
+
   <br>
   <br>
   <hr>
@@ -219,5 +229,100 @@
   GNU AGPL : this HTML file you're currently viewing must contain all the source code,
   other files of the repository should be <a href=".">here</a>,
   or on GitHub <a href="https://github.com/LLyaudet/DecimalsRangeRegexpGenerator">here</a>.
+
+  <script>
+    "use strict";
+    const url_search_params = new URLSearchParams(window.location.search);
+    let parameters = {
+      min: "",
+      is_min_excluded: false,
+      max: "",
+      is_max_excluded: false,
+      step: "",
+      allow_leading_zeros: false,
+      allow_trailing_zeros: false,
+      decimal_separators: "",
+      min_number_of_digits_before_decimal_separator: null,
+      max_number_of_digits_before_decimal_separator: null,
+      min_number_of_digits_after_decimal_separator: null,
+      max_number_of_digits_after_decimal_separator: null,
+      min_number_of_digits: "",
+      max_number_of_digits: "",
+      allow_zero_with_minus: false,
+      allow_zero_with_plus: false,
+      allow_positive_number_with_plus: false,
+    };
+    let error_message = "";
+
+    function set_text_parameter_in_form(parameter_name){
+      if(
+        url_search_params.get(parameter_name) !== undefined
+        && url_search_params.get(parameter_name) !== null
+      ){
+        document.getElementById(parameter_name).value = url_search_params.get(parameter_name);
+        parameters[parameter_name] = url_search_params.get(parameter_name);
+      }
+    }
+
+    function set_checkbox_parameter_in_form(parameter_name){
+      if(url_search_params.get(parameter_name) === "1"){
+        document.getElementById(parameter_name).checked = true;
+        parameters[parameter_name] = true;
+      }
+    }
+
+    function set_positive_integer_parameter_in_form(parameter_name){
+      if(
+        url_search_params.get(parameter_name) !== undefined
+        && url_search_params.get(parameter_name) !== null
+      ){
+        document.getElementById(parameter_name).value = url_search_params.get(parameter_name);
+        if(url_search_params.get(parameter_name) === ""){
+          parameters[parameter_name] = null;
+        }
+        else{
+          if(
+            url_search_params.get(parameter_name)
+            === Math.abs(parseInt(url_search_params.get(parameter_name))).toString()
+          ){
+            parameters[parameter_name] = parseInt(url_search_params.get(parameter_name));
+          }
+          else{
+            error_message += (
+              "Value \"" + url_search_params.get(parameter_name) + "\""
+              + " for " + parameter_name + " is incorrect (probably too big).\n"
+            );
+          }
+        }
+      }
+    }
+
+    set_text_parameter_in_form("min");
+    set_checkbox_parameter_in_form("is_min_excluded");
+    set_text_parameter_in_form("max");
+    set_checkbox_parameter_in_form("is_max_excluded");
+    set_text_parameter_in_form("step");
+    set_checkbox_parameter_in_form("allow_leading_zeros");
+    set_checkbox_parameter_in_form("allow_trailing_zeros");
+    set_text_parameter_in_form("decimal_separators");
+    if(parameters.decimal_separators === ""){
+      parameters.decimal_separators = ".";
+    }
+    set_positive_integer_parameter_in_form("min_number_of_digits_before_decimal_separator");
+    set_positive_integer_parameter_in_form("max_number_of_digits_before_decimal_separator");
+    set_positive_integer_parameter_in_form("min_number_of_digits_after_decimal_separator");
+    set_positive_integer_parameter_in_form("max_number_of_digits_after_decimal_separator");
+    set_positive_integer_parameter_in_form("min_number_of_digits");
+    set_positive_integer_parameter_in_form("max_number_of_digits");
+    set_checkbox_parameter_in_form("allow_zero_with_minus");
+    set_checkbox_parameter_in_form("allow_zero_with_plus");
+    set_checkbox_parameter_in_form("allow_leading_zeros");
+    set_checkbox_parameter_in_form("allow_positive_number_with_plus");
+
+    if(error_message !== ""){
+      document.getElementById("error").innerHTML = error_message;
+    }
+
+  </script>
 </body>
 </html>
