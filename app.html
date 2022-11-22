@@ -94,13 +94,27 @@
         name="allow_leading_zeros"
       >
     </div>
-      <div>
+    <div>
       <label for="allow_trailing_zeros">Allow trailing zeros: </label>
       <input
         type="checkbox"
         value="1"
         id="allow_trailing_zeros"
         name="allow_trailing_zeros"
+      >
+    </div>
+    <div>
+      <label for="decimal_separators">
+        Decimal separators
+        (A string that defaults to "."; you may use "," or ".," for example,
+        but decimal digits are forbidden ;).)
+      </label>
+      <input
+        type="text"
+        inputmode="text"
+        pattern="\D+"
+        id="decimal_separators"
+        name="decimal_separators"
       >
     </div>
     <div>
@@ -143,7 +157,7 @@
         name="max_number_of_digits_after_decimal_separator"
       >
     </div>
-        <div>
+    <div>
       <label for="min_number_of_digits">Min number of digits before or after decimal separator: </label>
       <input
         type="text"
