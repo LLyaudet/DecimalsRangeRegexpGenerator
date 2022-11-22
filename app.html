@@ -27,7 +27,11 @@
 
   ©Copyright 2022 Laurent Lyaudet
   -->
+  <h1>DecimalsRangeRegexpGenerator</h1>
+
   <form>
+    <h4>Main parameters</h4>
+    <h5>They impact the decimal numbers that can be written.</h5>
     <div>
       <label for="min">Min (optional): </label>
       <input
@@ -36,6 +40,15 @@
         pattern="\d+(\.\d+)?"
         id="min"
         name="min"
+      >
+    </div>
+    <div>
+      <label for="is_min_excluded">Min excluded: </label>
+      <input
+        type="checkbox"
+        value="1"
+        id="is_min_excluded"
+        name="is_min_excluded"
       >
     </div>
     <div>
@@ -49,6 +62,15 @@
       >
     </div>
     <div>
+      <label for="is_max_excluded">Max excluded: </label>
+      <input
+        type="checkbox"
+        value="1"
+        id="is_max_excluded"
+        name="is_max_excluded"
+      >
+    </div>
+    <div>
       <label for="step">Step (optional, it will default to arbitrary precision and not 1): </label>
       <input
         type="text"
@@ -58,8 +80,125 @@
         name="step"
       >
     </div>
+
+    <hr>
+
+    <h4>More optional parameters</h4>
+    <h5>They impact the formatting of the decimal numbers that can be written.</h5>
+    <div>
+      <label for="allow_leading_zeros">Allow leading zeros: </label>
+      <input
+        type="checkbox"
+        value="1"
+        id="allow_leading_zeros"
+        name="allow_leading_zeros"
+      >
+    </div>
+      <div>
+      <label for="allow_trailing_zeros">Allow trailing zeros: </label>
+      <input
+        type="checkbox"
+        value="1"
+        id="allow_trailing_zeros"
+        name="allow_trailing_zeros"
+      >
+    </div>
+    <div>
+      <label for="min_number_of_digits_before_decimal_separator">Min number of digits before decimal separator: </label>
+      <input
+        type="text"
+        inputmode="numeric"
+        pattern="\d+"
+        id="min_number_of_digits_before_decimal_separator"
+        name="min_number_of_digits_before_decimal_separator"
+      >
+    </div>
+    <div>
+      <label for="max_number_of_digits_before_decimal_separator">Max number of digits before decimal separator: </label>
+      <input
+        type="text"
+        inputmode="numeric"
+        pattern="\d+"
+        id="max_number_of_digits_before_decimal_separator"
+        name="max_number_of_digits_before_decimal_separator"
+      >
+    </div>
+    <div>
+      <label for="min_number_of_digits_after_decimal_separator">Min number of digits after decimal separator: </label>
+      <input
+        type="text"
+        inputmode="numeric"
+        pattern="\d+"
+        id="min_number_of_digits_after_decimal_separator"
+        name="min_number_of_digits_after_decimal_separator"
+      >
+    </div>
+    <div>
+      <label for="max_number_of_digits_after_decimal_separator">Max number of digits after decimal separator: </label>
+      <input
+        type="text"
+        inputmode="numeric"
+        pattern="\d+"
+        id="max_number_of_digits_after_decimal_separator"
+        name="max_number_of_digits_after_decimal_separator"
+      >
+    </div>
+        <div>
+      <label for="min_number_of_digits">Min number of digits before or after decimal separator: </label>
+      <input
+        type="text"
+        inputmode="numeric"
+        pattern="\d+"
+        id="min_number_of_digits"
+        name="min_number_of_digits"
+      >
+    </div>
+    <div>
+      <label for="max_number_of_digits">Max number of digits before or after decimal separator: </label>
+      <input
+        type="text"
+        inputmode="numeric"
+        pattern="\d+"
+        id="max_number_of_digits"
+        name="max_number_of_digits"
+      >
+    </div>
+    <div>
+      <label for="allow_zero_with_minus">Allow zero to be written with a minus sign: </label>
+      <input
+        type="checkbox"
+        value="1"
+        id="allow_zero_with_minus"
+        name="allow_zero_with_minus"
+      >
+    </div>
+    <div>
+      <label for="allow_zero_with_plus">Allow zero to be written with a plus sign: </label>
+      <input
+        type="checkbox"
+        value="1"
+        id="allow_zero_with_plus"
+        name="allow_zero_with_plus"
+      >
+    </div>
+    <div>
+      <label for="allow_positive_number_with_plus">Allow numbers above zero to be written with a plus sign: </label>
+      <input
+        type="checkbox"
+        value="1"
+        id="allow_positive_number_with_plus"
+        name="allow_positive_number_with_plus"
+      >
+    </div>
+
+    <hr>
+
     <button type="submit">Generate (Not Implemented Yet)</button>
   </form>
+
+  <br>
+  <br>
+  <hr>
 
   ©Copyright 2022 Laurent Lyaudet
   <br>
