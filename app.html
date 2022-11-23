@@ -31,12 +31,14 @@
 
   <form>
     <h4>Main parameters</h4>
-    <h5>They impact the decimal numbers that can be written.</h5>
+    <h5 id="title_achievement_unlocked">They impact the decimal numbers that can be written.</h5>
     <div>
       <label for="min">Min (optional): </label>
       <input
         type="text"
         inputmode="numeric"
+        pattern="(-|\+)?\d+(\.\d+)?"
+        title="This input has the following pattern: (-|\+)?\d+(\.\d+)?"
         id="min"
         name="min"
       >
@@ -55,6 +57,8 @@
       <input
         type="text"
         inputmode="numeric"
+        pattern="(-|\+)?\d+(\.\d+)?"
+        title="This input has the following pattern: (-|\+)?\d+(\.\d+)?"
         id="max"
         name="max"
       >
@@ -74,6 +78,7 @@
         type="text"
         inputmode="numeric"
         pattern="\d+(\.\d+)?"
+        title="This input has the following pattern: \d+(\.\d+)?"
         id="step"
         name="step"
       >
@@ -102,25 +107,12 @@
       >
     </div>
     <div>
-      <label for="decimal_separators">
-        Decimal separators
-        (A string that defaults to "."; you may use "," or ".," for example,
-        but decimal digits are forbidden ;).)
-      </label>
-      <input
-        type="text"
-        inputmode="text"
-        pattern="\D+"
-        id="decimal_separators"
-        name="decimal_separators"
-      >
-    </div>
-    <div>
       <label for="min_number_of_digits_before_decimal_separator">Min number of digits before decimal separator: </label>
       <input
         type="text"
         inputmode="numeric"
         pattern="[1-9]\d*"
+        title="This input has the following pattern: [1-9]\d*"
         id="min_number_of_digits_before_decimal_separator"
         name="min_number_of_digits_before_decimal_separator"
       >
@@ -131,6 +123,7 @@
         type="text"
         inputmode="numeric"
         pattern="[1-9]\d*"
+        title="This input has the following pattern: [1-9]\d*"
         id="max_number_of_digits_before_decimal_separator"
         name="max_number_of_digits_before_decimal_separator"
       >
@@ -141,6 +134,7 @@
         type="text"
         inputmode="numeric"
         pattern="[1-9]\d*"
+        title="This input has the following pattern: [1-9]\d*"
         id="min_number_of_digits_after_decimal_separator"
         name="min_number_of_digits_after_decimal_separator"
       >
@@ -151,6 +145,7 @@
         type="text"
         inputmode="numeric"
         pattern="[1-9]\d*"
+        title="This input has the following pattern: [1-9]\d*"
         id="max_number_of_digits_after_decimal_separator"
         name="max_number_of_digits_after_decimal_separator"
       >
@@ -161,6 +156,7 @@
         type="text"
         inputmode="numeric"
         pattern="[1-9]\d*"
+        title="This input has the following pattern: [1-9]\d*"
         id="min_number_of_digits"
         name="min_number_of_digits"
       >
@@ -171,6 +167,7 @@
         type="text"
         inputmode="numeric"
         pattern="[1-9]\d*"
+        title="This input has the following pattern: [1-9]\d*"
         id="max_number_of_digits"
         name="max_number_of_digits"
       >
@@ -202,6 +199,84 @@
         name="allow_positive_number_with_plus"
       >
     </div>
+    <h5>
+      Here you can break out of base ten,
+      and use any encoding of numbers using positional notation with fixed base.
+    </h5>
+    <p>
+      I like "creeping featurism".
+      Without sabotage, it is easy to add as many features
+      as you like, for the good of everyone.
+      Blaming creeping featurism for high maintenance cost is hypocrisy.
+    </p>
+    <div>
+      <label for="digits">
+        Digits
+      </label>
+      <input
+        type="text"
+        inputmode="text"
+        id="digits"
+        name="digits"
+        onchange="achievement_unlocked()"
+      >
+      <p>
+        A string that defaults to "0123456789";
+        you may use "01" (base 2) or "0123456789abcdef" (base 16) for example,
+        or even "five" for base four ;).
+        ("f" would be your zero, "i" your unit, etc.)
+      </p>
+    </div>
+    <div>
+      <label for="decimal_separators">
+        Decimal separators
+      </label>
+      <input
+        type="text"
+        inputmode="text"
+        id="decimal_separators"
+        name="decimal_separators"
+        onchange="achievement_unlocked()"
+      >
+      <p>
+        A string that defaults to ".";
+        you may use "," or ".," for example.
+      </p>
+    </div>
+    <div>
+      <label for="plus_signs">
+        Plus signs
+      </label>
+      <input
+        type="text"
+        inputmode="text"
+        id="plus_signs"
+        name="plus_signs"
+        onchange="achievement_unlocked()"
+      >
+      <p>
+        A string that defaults to "+";
+        you may use "p" for example,
+        or "pl" if you would like to use "p" or "l" as you wish.
+      </p>
+    </div>
+    <div>
+      <label for="minus_signs">
+        Minus signs
+      </label>
+      <input
+        type="text"
+        inputmode="text"
+        id="minus_signs"
+        name="minus_signs"
+        onchange="achievement_unlocked()"
+      >
+      <p>
+        A string that defaults to "-";
+        you may use "m" for example,
+        or "mn" if you would like to use "m" or "n" as you wish.
+      </p>
+    </div>
 
     <hr>
 
@@ -230,6 +305,29 @@
 
   <script>
     "use strict";
+
+    function achievement_unlocked(){
+      document.getElementById("title_achievement_unlocked").innerHTML = (
+        "<span style=\"color: steelblue\">"
+        + "They impact the"
+        + " <span style=\"text-decoration-line: line-through;\">decimal</span>(achievement unlocked)"
+        + " numbers that can be written."
+        + "</span>"
+      );
+      let minElement = document.getElementById("min");
+      let maxElement = document.getElementById("max");
+      let stepElement = document.getElementById("step");
+      minElement.inputMode = "text";
+      minElement.removeAttribute("pattern");
+      minElement.title = "This input has no pattern."
+      maxElement.inputMode = "text";
+      maxElement.removeAttribute("pattern");
+      maxElement.title = "This input has no pattern."
+      stepElement.inputMode = "text";
+      stepElement.removeAttribute("pattern");
+      stepElement.title = "This input has no pattern."
+    }
+
     const url_search_params = new URLSearchParams(window.location.search);
     let parameters = {
       min: "",
@@ -239,7 +337,6 @@
       step: "",
       allow_leading_zeros: false,
       allow_trailing_zeros: false,
-      decimal_separators: "",
       min_number_of_digits_before_decimal_separator: null,
       max_number_of_digits_before_decimal_separator: null,
       min_number_of_digits_after_decimal_separator: null,
@@ -249,15 +346,12 @@
       allow_zero_with_minus: false,
       allow_zero_with_plus: false,
       allow_positive_number_with_plus: false,
+      digits: "",
+      decimal_separators: "",
+      plus_signs: "",
+      minus_signs: "",
     };
     let error_message = "";
-    let decimal_digits = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"];
-    let zero_digit = "0";
-    let other_digits = ["1", "2", "3", "4", "5", "6", "7", "8", "9"];
-    let all_digits = [zero_digit, ...other_digits];
-    let plus_sign = "+";
-    let minus_sign = "-";
-    let sign_signs = [plus_sign, minus_sign];
 
     function set_text_parameter_in_form(parameter_name){
       if(
@@ -310,11 +404,6 @@
     set_text_parameter_in_form("step");
     set_checkbox_parameter_in_form("allow_leading_zeros");
     set_checkbox_parameter_in_form("allow_trailing_zeros");
-    set_text_parameter_in_form("decimal_separators");
-    if(parameters.decimal_separators === ""){
-      parameters.decimal_separators = ".";
-    }
-    parameters.decimal_separators = Array.from(parameters.decimal_separators);
     set_positive_integer_parameter_in_form("min_number_of_digits_before_decimal_separator");
     set_positive_integer_parameter_in_form("max_number_of_digits_before_decimal_separator");
     set_positive_integer_parameter_in_form("min_number_of_digits_after_decimal_separator");
@@ -325,27 +414,110 @@
     set_checkbox_parameter_in_form("allow_zero_with_plus");
     set_checkbox_parameter_in_form("allow_leading_zeros");
     set_checkbox_parameter_in_form("allow_positive_number_with_plus");
+    set_text_parameter_in_form("digits");
+    set_text_parameter_in_form("decimal_separators");
+    set_text_parameter_in_form("plus_signs");
+    set_text_parameter_in_form("minus_signs");
 
+    let number_of_defaults = 0;
+    if(parameters.digits === ""){
+      parameters.digits = "0123456789";
+      ++number_of_defaults;
+    }
+    if(parameters.decimal_separators === ""){
+      parameters.decimal_separators = ".";
+      ++number_of_defaults;
+    }
+    if(parameters.plus_signs === ""){
+      parameters.plus_signs = "+";
+      ++number_of_defaults;
+    }
+    if(parameters.minus_signs === ""){
+      parameters.minus_signs = "-";
+      ++number_of_defaults;
+    }
+    if(number_of_defaults < 4){
+      achievement_unlocked();
+    }
+
+    function explode_and_check_unicity(parameter_name, some_error_message){
+      let some_array = Array.from(parameters[parameter_name]);
+      let unique_array = [... new Set(some_array)];
+      if(some_array.length !== unique_array.length) {
+        error_message += some_error_message + "\n<br>";
+      }
+      parameters[parameter_name] = unique_array;
+    }
+    explode_and_check_unicity("digits", "You have repeated digits.");
+    explode_and_check_unicity("decimal_separators", "You have repeated decimal separators.");
+    explode_and_check_unicity("plus_signs", "You have repeated plus signs.");
+    explode_and_check_unicity("minus_signs", "You have repeated minus signs.");
+
+    if(parameters.digits.length < 2) {
+      error_message += (
+        "You need at least two digits for positional notation.\n"
+        + "<br>"
+      );
+    }
     for(let decimal_separator of parameters.decimal_separators){
-      if(all_digits.includes(decimal_separator)){
+      if(parameters.digits.includes(decimal_separator)){
         error_message += (
           "You gave a decimal separator that is a digit"
           + " (\"" + decimal_separator + "\").\n"
           + "<br>"
         );
       }
-      if(sign_signs.includes(decimal_separator)){
+    }
+    for(let plus_sign of parameters.plus_signs){
+      if(parameters.digits.includes(plus_sign)){
         error_message += (
-          "You gave a decimal separator that is a sign"
-          + " (\"" + decimal_separator + "\").\n"
+          "You gave a plus sign that is a digit"
+          + " (\"" + plus_sign + "\").\n"
+          + "<br>"
+        );
+      }
+      if(parameters.decimal_separators.includes(plus_sign)){
+        error_message += (
+          "You gave a plus sign that is a decimal separator"
+          + " (\"" + plus_sign + "\").\n"
           + "<br>"
         );
       }
     }
+    for(let minus_sign of parameters.minus_signs){
+      if(parameters.digits.includes(minus_sign)){
+        error_message += (
+          "You gave a minus sign that is a digit"
+          + " (\"" + minus_sign + "\").\n"
+          + "<br>"
+        );
+      }
+      if(parameters.decimal_separators.includes(minus_sign)){
+        error_message += (
+          "You gave a minus sign that is a decimal separator"
+          + " (\"" + minus_sign + "\").\n"
+          + "<br>"
+        );
+      }
+      if(parameters.plus_signs.includes(minus_sign)){
+        error_message += (
+          "You gave a minus sign that is a plus_sign"
+          + " (\"" + minus_sign + "\").\n"
+          + "<br>"
+        );
+      }
+    }
+
+    let decimal_digits = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"];
+    let zero_digit = parameters.digits[0];
+    let unit_digit = parameters.digits[1];
+    let positive_digits = parameters.digits.slice(1, parameters.digits.length - 1);
+    let sign_signs = [...parameters.plus_signs, ...parameters.minus_signs];
+
     let all_characters = [
-      ...all_digits,
-      ...sign_signs,
+      ...parameters.digits,
       ...parameters.decimal_separators,
+      ...sign_signs,
     ];
 
     function canonize_number(some_number_string, number_name){
@@ -368,7 +540,7 @@
       // Check that there is at most one plus sign or one minus sign and that is the first character
       let first = true;
       for(let digit of digits_array){
-        if(digit !== plus_sign){
+        if(!parameters.plus_signs.includes(digit)){
           digits_array_result.push(digit);
         }
         if(sign_signs.includes(digit)){
@@ -393,7 +565,7 @@
           digits_array_result.push(digit);
           continue;
         }
-        if(other_digits.includes(digit)){
+        if(positive_digits.includes(digit)){
           non_zero_digit_or_decimal_separator_found = true;
           digits_array_result.push(digit);
           continue;
@@ -440,11 +612,22 @@
       return digits_array_result;
     }
 
-    if(parameters.min !== ""){
-      parameters.min = canonize_number(parameters.min, "min");
-    }
-    if(parameters.max !== ""){
-      parameters.max = canonize_number(parameters.max, "max");
+    if(error_message === ""){
+      if(parameters.min !== ""){
+        parameters.min = canonize_number(parameters.min, "min");
+      }
+      if(parameters.max !== ""){
+        parameters.max = canonize_number(parameters.max, "max");
+      }
+      if(parameters.step !== ""){
+        parameters.step = canonize_number(parameters.step, "step");
+      }
+      if(sign_signs.includes(parameters.step[0])){
+        error_message += (
+          "You gave a step with sign.\n"
+          + "<br>"
+        );
+      }
     }
 
     if(error_message !== ""){
