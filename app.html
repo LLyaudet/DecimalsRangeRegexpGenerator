@@ -290,7 +290,10 @@
   <hr>
   <h4>Result</h4>
   <div>
-    <textarea id="result"></textarea>
+    <textarea
+      id="result"
+      style="width: 100%; box-sizing: border-box;"
+    ></textarea>
   </div>
 
   <br>
@@ -305,6 +308,7 @@
 
   <script>
     "use strict";
+
 
     function achievement_unlocked(){
       document.getElementById("title_achievement_unlocked").innerHTML = (
@@ -327,6 +331,7 @@
       stepElement.removeAttribute("pattern");
       stepElement.title = "This input has no pattern."
     }
+
 
     const url_search_params = new URLSearchParams(window.location.search);
     let parameters = {
@@ -353,6 +358,7 @@
     };
     let error_message = "";
 
+
     function set_text_parameter_in_form(parameter_name){
       if(
         url_search_params.get(parameter_name) !== undefined
@@ -363,12 +369,14 @@
       }
     }
 
+
     function set_checkbox_parameter_in_form(parameter_name){
       if(url_search_params.get(parameter_name) === "1"){
         document.getElementById(parameter_name).checked = true;
         parameters[parameter_name] = true;
       }
     }
+
 
     function set_positive_integer_parameter_in_form(parameter_name){
       if(
@@ -397,6 +405,7 @@
       }
     }
 
+
     set_text_parameter_in_form("min");
     set_checkbox_parameter_in_form("is_min_excluded");
     set_text_parameter_in_form("max");
@@ -412,7 +421,6 @@
     set_positive_integer_parameter_in_form("max_number_of_digits");
     set_checkbox_parameter_in_form("allow_zero_with_minus");
     set_checkbox_parameter_in_form("allow_zero_with_plus");
-    set_checkbox_parameter_in_form("allow_leading_zeros");
     set_checkbox_parameter_in_form("allow_positive_number_with_plus");
     set_text_parameter_in_form("digits");
     set_text_parameter_in_form("decimal_separators");
@@ -508,7 +516,6 @@
       }
     }
 
-    let decimal_digits = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"];
     let zero_digit = parameters.digits[0];
     let unit_digit = parameters.digits[1];
     let positive_digits = parameters.digits.slice(1, parameters.digits.length - 1);
@@ -519,6 +526,7 @@
       ...parameters.decimal_separators,
       ...sign_signs,
     ];
+
 
     function canonize_number(some_number_string, number_name){
       let digits_array = Array.from(some_number_string);
@@ -612,6 +620,7 @@
       return digits_array_result;
     }
 
+
     if(error_message === ""){
       if(parameters.min !== ""){
         parameters.min = canonize_number(parameters.min, "min");
@@ -628,6 +637,265 @@
           + "<br>"
         );
       }
+    }
+
+
+    // This function is from
+    // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide
+    // /Regular_Expressions
+    function escapeRegExp(string) {
+      return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    }
+
+
+    const decimal_digits = [
+      "0", "1", "2", "3", "4", "5", "6", "7", "8", "9"
+    ];
+    const lower_case_letters = [
+      "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l",
+      "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x",
+      "y", "z",
+    ];
+    const upper_case_letters = lower_case_letters.map(
+      (value) => { return value.toUpperCase(); }
+    )
+
+
+    function shrink_array_of_characters_with(
+      array_to_shrink,
+      array_of_reference, // may be one of the three arrays above
+      all_range_equivalent,
+    ){
+      // This way around avoids a sort.
+      let common_elements = array_of_reference.filter(
+        (element) => { return array_to_shrink.includes(element); }
+      )
+      if(common_elements.length < 3){
+        return array_to_shrink;
+      }
+      let result = array_to_shrink.filter(
+        (element) => {
+          return !array_of_reference.includes(element);
+        }
+      )
+      if(common_elements.length === array_of_reference.length){
+        result.push(all_range_equivalent);
+        return result;
+      }
+      let start_of_range = null;
+      let end_of_range = null;
+      for(let element of common_elements){
+        if(start_of_range === null){
+          start_of_range = element;
+          continue;
+        }
+        if(end_of_range === null){
+          if(element.charCodeAt(0) === start_of_range.charCodeAt(0) + 1){
+            end_of_range = element;
+          }
+          else{
+            result.push(start_of_range);
+            start_of_range = element;
+          }
+          continue;
+        }
+        if(element.charCodeAt(0) === end_of_range.charCodeAt(0) + 1){
+          end_of_range = element;
+          continue;
+        }
+        if(end_of_range.charCodeAt(0) === start_of_range.charCodeAt(0) + 1){
+          result.push(start_of_range);
+          result.push(end_of_range);
+        }
+        else{
+          result.push(start_of_range + "-" + end_of_range);
+        }
+        start_of_range = element;
+        end_of_range = null;
+      }
+      if(end_of_range === null){
+        result.push(start_of_range);
+      }
+      else{
+        if(end_of_range.charCodeAt(0) === start_of_range.charCodeAt(0) + 1){
+          result.push(start_of_range);
+          result.push(end_of_range);
+        }
+        else{
+          result.push(start_of_range + "-" + end_of_range);
+        }
+      }
+      return result;
+    }
+
+
+    function shrink_array_of_characters(some_array){
+      some_array = shrink_array_of_characters_with(
+        some_array,
+        decimal_digits,
+        "\\d",
+      );
+      some_array = shrink_array_of_characters_with(
+        some_array,
+        lower_case_letters,
+        "a-z",
+      );
+      some_array = shrink_array_of_characters_with(
+        some_array,
+        upper_case_letters,
+        "A-Z",
+      );
+      return some_array;
+    }
+
+
+    function compute_regexp_for_any_character_in_array(some_array){
+      some_array = shrink_array_of_characters(some_array);
+      // We must put "-" at the end.
+      let index = some_array.indexOf("-");
+      if(index >= -1){
+        some_array.push(some_array.splice(index, 1)[0]);
+      }
+
+      let result = some_array.map(
+        (value) => {
+          if(value === "\\d"){
+            return value;
+          }
+          return escapeRegExp(value);
+        }
+      ).join("");
+      let final_array = Array.from(result);
+      if(
+        final_array.length > 1
+        && (
+          final_array.length > 2
+          || final_array[0] !== "\\"
+        )
+      ){
+        result = "[" + result + "]";
+      }
+      return result;
+    }
+
+
+    function get_repeat_string(min, max){
+      // At least one of min and max must not be null.
+      let repeat = "{";
+      if(min === max){
+        repeat += min;
+      }
+      else if(min === null){
+        repeat += "0," + max;
+      }
+      else if(max === null){
+        repeat += min + ","
+      }
+      else {
+        repeat += min + "," + max;
+      }
+      repeat += "}";
+      return repeat;
+    }
+
+
+    if(error_message === ""){
+      // We compute the building blocks for the regular expression.
+      let any_sign_regexp = compute_regexp_for_any_character_in_array(
+        sign_signs
+      )
+      let any_digit_regexp = compute_regexp_for_any_character_in_array(
+        parameters.digits
+      )
+      let any_decimal_separator = (
+        compute_regexp_for_any_character_in_array(
+          parameters.decimal_separators
+        )
+      )
+      let zero_digit_regexp = compute_regexp_for_any_character_in_array(
+          [zero_digit]
+      );
+
+      let repeat_before = "+";
+      let repeat_after = "+";
+      if(
+        parameters.min_number_of_digits_before_decimal_separator
+        !== null
+        || parameters.max_number_of_digits_before_decimal_separator
+        !== null
+      ){
+        repeat_before = get_repeat_string(
+          parameters.min_number_of_digits_before_decimal_separator,
+          parameters.max_number_of_digits_before_decimal_separator,
+        )
+      }
+      if(
+        parameters.min_number_of_digits_after_decimal_separator
+        !== null
+        || parameters.max_number_of_digits_after_decimal_separator
+        !== null
+      ){
+        repeat_after = get_repeat_string(
+          parameters.min_number_of_digits_after_decimal_separator,
+          parameters.max_number_of_digits_after_decimal_separator,
+        )
+      }
+      // bare requirement with positive look-ahead
+      let regular_expression_string = (
+        "(?="
+        + any_sign_regexp + "?" // It may start with a sign
+        //+ any_digit_regexp + "+" // Followed by some digits
+        + any_digit_regexp + repeat_before
+        + "("
+          + any_decimal_separator
+          // + any_digit_regexp + "+"
+          + any_digit_regexp + repeat_after
+          + ")?" // Then maybe a decimal part
+        + "$)" // We want all the string.
+      );
+      if(!parameters.allow_leading_zeros){
+        // No leading zero with negative look-ahead
+        regular_expression_string += (
+          "(?!"
+          + any_sign_regexp + "?" // It may start with a sign
+          + zero_digit_regexp
+          + any_digit_regexp
+          + ")"
+        );
+      }
+      if(!parameters.allow_trailing_zeros){
+        // No trailing zero with negative look-ahead
+        let longer = false;
+        if(longer){
+          regular_expression_string += (
+            "(?!"
+            + any_sign_regexp + "?" // It may start with a sign
+            + any_digit_regexp + "+" // Followed by some digits
+            + any_decimal_separator
+            + any_digit_regexp + "*"
+            + zero_digit_regexp
+            + "$)" // We want all the string.
+          );
+        }
+        else{
+          regular_expression_string += (
+            "(?!"
+            + ".*"
+            + any_decimal_separator
+            + ".*"
+            + zero_digit_regexp
+            + "$)" // We want all the string.
+          );
+        }
+      }
+
+      // Negative or positive look-behind is not enough.
+      // At the end, we must truly match the string.
+      regular_expression_string += ".*";
+
+      document.getElementById("result").innerHTML = (
+        regular_expression_string
+      );
     }
 
     if(error_message !== ""){
