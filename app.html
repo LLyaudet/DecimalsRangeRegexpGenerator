@@ -564,7 +564,7 @@
 
     let zero_digit = parameters.digits[0];
     let unit_digit = parameters.digits[1];
-    let positive_digits = parameters.digits.slice(1, parameters.digits.length - 1);
+    let positive_digits = parameters.digits.slice(1, parameters.digits.length);
     let sign_signs = [...parameters.plus_signs, ...parameters.minus_signs];
 
     let all_characters = [
@@ -861,6 +861,15 @@
       let zero_digit_regexp = compute_regexp_for_any_character_in_array(
           [zero_digit]
       );
+      let minus_sign_regexp = compute_regexp_for_any_character_in_array(
+        parameters.minus_signs
+      )
+      let plus_sign_regexp = compute_regexp_for_any_character_in_array(
+        parameters.plus_signs
+      )
+      let any_positive_digit_regexp = compute_regexp_for_any_character_in_array(
+        positive_digits
+      )
 
       let regular_expression_string = "";
       let repeat_before = "+";
@@ -942,6 +951,49 @@
             + "$)" // We want all the string.
           );
         }
+      }
+
+      if(!parameters.allow_zero_with_minus){
+        // No zero with minus with negative look-ahead
+        regular_expression_string += (
+          "(?!"
+          + minus_sign_regexp
+          + zero_digit_regexp + "+"
+          + "("
+            + any_decimal_separator
+            + zero_digit_regexp + "+"
+            + ")?" // Then maybe a decimal part
+          + "$)" // We want all the string.
+        );
+      }
+      if(!parameters.allow_zero_with_plus){
+        // No zero with plus with negative look-ahead
+        regular_expression_string += (
+          "(?!"
+          + plus_sign_regexp
+          + zero_digit_regexp + "+"
+          + "("
+            + any_decimal_separator
+            + zero_digit_regexp + "+"
+            + ")?" // Then maybe a decimal part
+          + "$)" // We want all the string.
+        );
+      }
+      if(!parameters.allow_positive_number_with_plus){
+        // No zero with plus with negative look-ahead
+        regular_expression_string += (
+          "(?!"
+          //We do a positive look-ahead inside a negative look-ahead,
+          //to check that the number is indeed positive.
+          + "(?=.*" + any_positive_digit_regexp + ")"
+          + plus_sign_regexp
+          + any_digit_regexp + "+"
+          + "("
+            + any_decimal_separator
+            + any_digit_regexp + "+"
+            + ")?" // Then maybe a decimal part
+          + "$)" // We want all the string.
+        );
       }
 
       // Negative or positive look-behind is not enough.
