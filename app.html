@@ -42,7 +42,10 @@
       They impact the decimal numbers that can be written.
     </h5>
     <div>
-      <label for="min">Min (optional): </label>
+      <label for="min">
+        Min (optional):
+        <span style="color: crimson">Not fully working</span>
+      </label>
       <input
         type="text"
         inputmode="numeric"
@@ -51,6 +54,9 @@
         id="min"
         name="min"
       >
+      <p id="equals_min"></p>
+      <p id="more_than_min"></p>
+      <p id="at_least_min"></p>
     </div>
     <div>
       <label for="is_min_excluded">Min excluded: </label>
@@ -62,7 +68,10 @@
       >
     </div>
     <div>
-      <label for="max">Max (optional): </label>
+      <label for="max">
+        Max (optional):
+        <span style="color: crimson">Not fully working</span>
+      </label>
       <input
         type="text"
         inputmode="numeric"
@@ -71,6 +80,9 @@
         id="max"
         name="max"
       >
+      <p id="equals_max"></p>
+      <p id="less_than_max"></p>
+      <p id="at_most_max"></p>
     </div>
     <div>
       <label for="is_max_excluded">Max excluded: </label>
@@ -85,6 +97,7 @@
       <label for="step">
         Step
         (optional, it will default to arbitrary precision and not 1):
+        <span style="color: crimson">Not working</span>
       </label>
       <input
         type="text"
@@ -377,6 +390,23 @@
     "use strict";
 
 
+    // This code is from StackOverflow.
+    // https://stackoverflow.com/a/9251169/5796086
+    // I can not believe that there is still no HTML.escape()
+    // and HTML.unescape() functions in JS standard in 2022.
+    // Seriously !
+    let escape = document.createElement('textarea');
+    function escapeHTML(html) {
+        escape.textContent = html;
+        return escape.innerHTML;
+    }
+
+    function unescapeHTML(html) {
+        escape.innerHTML = html;
+        return escape.textContent;
+    }
+
+
     function achievement_unlocked(){
       let title_achievement_unlocked_element = (
         document.getElementById("title_achievement_unlocked")
@@ -500,7 +530,8 @@
           }
           else{
             error_message += (
-              "Value \"" + url_search_params.get(parameter_name)
+              "Value \""
+              + escapeHTML(url_search_params.get(parameter_name))
               + "\""
               + " for " + parameter_name
               + " is incorrect (probably too big).\n"
@@ -597,7 +628,7 @@
       if(parameters.digits.includes(decimal_separator)){
         error_message += (
           "You gave a decimal separator that is a digit"
-          + " (\"" + decimal_separator + "\").\n"
+          + " (\"" + escapeHTML(decimal_separator) + "\").\n"
           + "<br>"
         );
       }
@@ -606,14 +637,14 @@
       if(parameters.digits.includes(plus_sign)){
         error_message += (
           "You gave a plus sign that is a digit"
-          + " (\"" + plus_sign + "\").\n"
+          + " (\"" + escapeHTML(plus_sign) + "\").\n"
           + "<br>"
         );
       }
       if(parameters.decimal_separators.includes(plus_sign)){
         error_message += (
           "You gave a plus sign that is a decimal separator"
-          + " (\"" + plus_sign + "\").\n"
+          + " (\"" + escapeHTML(plus_sign) + "\").\n"
           + "<br>"
         );
       }
@@ -622,21 +653,21 @@
       if(parameters.digits.includes(minus_sign)){
         error_message += (
           "You gave a minus sign that is a digit"
-          + " (\"" + minus_sign + "\").\n"
+          + " (\"" + escapeHTML(minus_sign) + "\").\n"
           + "<br>"
         );
       }
       if(parameters.decimal_separators.includes(minus_sign)){
         error_message += (
           "You gave a minus sign that is a decimal separator"
-          + " (\"" + minus_sign + "\").\n"
+          + " (\"" + escapeHTML(minus_sign) + "\").\n"
           + "<br>"
         );
       }
       if(parameters.plus_signs.includes(minus_sign)){
         error_message += (
           "You gave a minus sign that is a plus_sign"
-          + " (\"" + minus_sign + "\").\n"
+          + " (\"" + escapeHTML(minus_sign) + "\").\n"
           + "<br>"
         );
       }
@@ -673,7 +704,8 @@
         if(!all_characters.includes(digit)){
           error_message += (
             "You gave a " + number_name
-            + " number with unknown character \"" + digit + "\".\n"
+            + " number with unknown character \"" + escapeHTML(digit)
+            + "\".\n"
             + "<br>"
           );
           return null;
@@ -712,6 +744,10 @@
       let non_zero_digit_or_decimal_separator_found = false;
       for(let digit of digits_array){
         if(non_zero_digit_or_decimal_separator_found){
+          digits_array_result.push(digit);
+          continue;
+        }
+        if(parameters.minus_signs.includes(digit)){
           digits_array_result.push(digit);
           continue;
         }
@@ -1165,6 +1201,69 @@
         );
       }
 
+      function equals_regexp(some_number_array){
+        let equals_regexp = "";
+        let start_at = 0;
+        if(parameters.minus_signs.includes(some_number_array[0])){
+          equals_regexp += minus_sign_regexp;
+          start_at = 1;
+        }
+        else{
+          equals_regexp += plus_sign_regexp + "?";
+        }
+        equals_regexp += zero_digit_regexp + "*";
+        for(let i = start_at; i < some_number_array.length; ++i){
+          equals_regexp += escapeRegExp(some_number_array[i]);
+        }
+        let has_decimal_separator = false;
+        for(let digit of some_number_array){
+          if(parameters.decimal_separators.includes(digit)){
+            has_decimal_separator = true;
+            break;
+          }
+        }
+        if(has_decimal_separator){
+          equals_regexp += zero_digit_regexp + "*";
+        }
+        equals_regexp += "$";
+        return equals_regexp;
+      }
+
+
+      let min_equals_regexp = null;
+      if(parameters.min  !== ""){
+        min_equals_regexp = equals_regexp(parameters.min);
+        document.getElementById("equals_min").innerHTML = (
+          "Here is a regular expression for testing equality"
+          + " with min: "
+          + "<span style=\"color: forestgreen\">"
+          + escapeHTML(min_equals_regexp)
+          + "</span>"
+        );
+        if(parameters.is_min_excluded){
+          regular_expression_string += (
+            "(?!" + min_equals_regexp + ")"
+          );
+        }
+      }
+
+      let max_equals_regexp = null;
+      if(parameters.max  !== ""){
+        max_equals_regexp = equals_regexp(parameters.max);
+        document.getElementById("equals_max").innerHTML = (
+          "Here is a regular expression for testing equality"
+          + " with max: "
+          + "<span style=\"color: forestgreen\">"
+          + escapeHTML(max_equals_regexp)
+          + "</span>"
+        );
+        if(parameters.is_max_excluded){
+          regular_expression_string += (
+            "(?!" + max_equals_regexp + ")"
+          );
+        }
+      }
+
       // Negative or positive look-behind is not enough.
       // At the end, we must truly match the string.
       if(bare_requirement_as_positive_look_ahead){
@@ -1174,7 +1273,7 @@
         regular_expression_string += bare_requirement;
       }
 
-      document.getElementById("result").innerHTML = (
+      document.getElementById("result").textContent = (
         regular_expression_string
       );
       let test_string_element = (
