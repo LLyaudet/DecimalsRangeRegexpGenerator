@@ -4,8 +4,10 @@
   <meta charset="UTF-8">
   <meta name="Author" content="Laurent LYAUDET">
   <meta name="Publisher" content="Laurent LYAUDET">
-  <meta name="Description" content="Dev tool to generate a regular expression matching a range of decimal numbers">
-  <meta name="Keywords" content="RegExp, regular expression, generator, decimal number, min, max, step">
+  <meta name="Description"
+    content="Dev tool to generate a regular expression matching a range of decimal numbers">
+  <meta name="Keywords"
+    content="RegExp, regular expression, generator, decimal number, min, max, step">
   <title>DecimalsRangeRegexpGenerator</title>
 </head>
 <body>
@@ -16,13 +18,18 @@
   you can redistribute it and/or modify it
   under the terms of the GNU Affero General Public License
   as published by the Free Software Foundation,
-  either version 3 of the License, or (at your option) any later version.
+  either version 3 of the License,
+  or (at your option) any later version.
 
-  DecimalsRangeRegexpGenerator is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
-  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+  DecimalsRangeRegexpGenerator is distributed in the hope
+  that it will be useful, but WITHOUT ANY WARRANTY;
+  without even the implied warranty of MERCHANTABILITY
+  or FITNESS FOR A PARTICULAR PURPOSE.
   See the GNU Affero General Public License for more details.
 
-  You should have received a copy of the GNU Affero General Public License along with DecimalsRangeRegexpGenerator.
+  You should have received a copy of the
+  GNU Affero General Public License
+  along with DecimalsRangeRegexpGenerator.
   If not, see <https://www.gnu.org/licenses/>
 
   ©Copyright 2022 Laurent Lyaudet
@@ -31,7 +38,9 @@
 
   <form>
     <h4>Main parameters</h4>
-    <h5 id="title_achievement_unlocked">They impact the decimal numbers that can be written.</h5>
+    <h5 id="title_achievement_unlocked">
+      They impact the decimal numbers that can be written.
+    </h5>
     <div>
       <label for="min">Min (optional): </label>
       <input
@@ -73,7 +82,10 @@
       >
     </div>
     <div>
-      <label for="step">Step (optional, it will default to arbitrary precision and not 1): </label>
+      <label for="step">
+        Step
+        (optional, it will default to arbitrary precision and not 1):
+      </label>
       <input
         type="text"
         inputmode="numeric"
@@ -87,7 +99,10 @@
     <hr>
 
     <h4>More optional parameters</h4>
-    <h5>They impact the formatting of the decimal numbers that can be written.</h5>
+    <h5>
+      They impact the formatting of the decimal numbers
+      that can be written.
+    </h5>
     <div>
       <label for="allow_leading_zeros">Allow leading zeros: </label>
       <input
@@ -107,7 +122,9 @@
       >
     </div>
     <div>
-      <label for="min_number_of_digits_before_decimal_separator">Min number of digits before decimal separator: </label>
+      <label for="min_number_of_digits_before_decimal_separator">
+        Min number of digits before decimal separator:
+      </label>
       <input
         type="text"
         inputmode="numeric"
@@ -118,7 +135,9 @@
       >
     </div>
     <div>
-      <label for="max_number_of_digits_before_decimal_separator">Max number of digits before decimal separator: </label>
+      <label for="max_number_of_digits_before_decimal_separator">
+        Max number of digits before decimal separator:
+      </label>
       <input
         type="text"
         inputmode="numeric"
@@ -129,7 +148,9 @@
       >
     </div>
     <div>
-      <label for="min_number_of_digits_after_decimal_separator">Min number of digits after decimal separator: </label>
+      <label for="min_number_of_digits_after_decimal_separator">
+        Min number of digits after decimal separator:
+      </label>
       <input
         type="text"
         inputmode="numeric"
@@ -140,7 +161,9 @@
       >
     </div>
     <div>
-      <label for="max_number_of_digits_after_decimal_separator">Max number of digits after decimal separator: </label>
+      <label for="max_number_of_digits_after_decimal_separator">
+        Max number of digits after decimal separator:
+      </label>
       <input
         type="text"
         inputmode="numeric"
@@ -151,7 +174,9 @@
       >
     </div>
     <div>
-      <label for="min_number_of_digits">Min number of digits before or after decimal separator: </label>
+      <label for="min_number_of_digits">
+        Min number of digits before or after decimal separator:
+      </label>
       <input
         type="text"
         inputmode="numeric"
@@ -162,7 +187,9 @@
       >
     </div>
     <div>
-      <label for="max_number_of_digits">Max number of digits before or after decimal separator: </label>
+      <label for="max_number_of_digits">
+        Max number of digits before or after decimal separator:
+      </label>
       <input
         type="text"
         inputmode="numeric"
@@ -173,7 +200,9 @@
       >
     </div>
     <div>
-      <label for="allow_zero_with_minus">Allow zero to be written with a minus sign: </label>
+      <label for="allow_zero_with_minus">
+        Allow zero to be written with a minus sign:
+      </label>
       <input
         type="checkbox"
         value="1"
@@ -182,7 +211,9 @@
       >
     </div>
     <div>
-      <label for="allow_zero_with_plus">Allow zero to be written with a plus sign: </label>
+      <label for="allow_zero_with_plus">
+        Allow zero to be written with a plus sign:
+      </label>
       <input
         type="checkbox"
         value="1"
@@ -191,7 +222,9 @@
       >
     </div>
     <div>
-      <label for="allow_positive_number_with_plus">Allow numbers above zero to be written with a plus sign: </label>
+      <label for="allow_positive_number_with_plus">
+        Allow numbers above zero to be written with a plus sign:
+      </label>
       <input
         type="checkbox"
         value="1"
@@ -201,13 +234,15 @@
     </div>
     <h5>
       Here you can break out of base ten,
-      and use any encoding of numbers using positional notation with fixed base.
+      and use any encoding of numbers using positional notation
+      with fixed base.
     </h5>
     <p>
       I like "creeping featurism".
       Without sabotage, it is easy to add as many features
       as you like, for the good of everyone.
-      Blaming creeping featurism for high maintenance cost is hypocrisy.
+      Blaming creeping featurism for high maintenance cost
+      is hypocrisy.
     </p>
     <div>
       <label for="digits">
@@ -222,7 +257,8 @@
       >
       <p>
         A string that defaults to "0123456789";
-        you may use "01" (base 2) or "0123456789abcdef" (base 16) for example,
+        you may use "01" (base 2)
+        or "0123456789abcdef" (base 16) for example,
         or even "five" for base four ;).
         ("f" would be your zero, "i" your unit, etc.)
       </p>
@@ -280,7 +316,7 @@
 
     <hr>
 
-    <button type="submit">Generate (Not Implemented Yet)</button>
+    <button type="submit">Generate</button>
   </form>
 
   <hr>
@@ -329,19 +365,27 @@
 
   ©Copyright 2022 Laurent Lyaudet
   <br>
-  GNU AGPL : this HTML file you're currently viewing must contain all the source code,
+  GNU AGPL : this HTML file you're currently viewing
+  must contain all the source code,
   other files of the repository should be <a href=".">here</a>,
-  or on GitHub <a href="https://github.com/LLyaudet/DecimalsRangeRegexpGenerator">here</a>.
+  or on GitHub
+  <a href="https://github.com/LLyaudet/DecimalsRangeRegexpGenerator">
+    here
+  </a>.
 
   <script>
     "use strict";
 
 
     function achievement_unlocked(){
-      document.getElementById("title_achievement_unlocked").innerHTML = (
+      let title_achievement_unlocked_element = (
+        document.getElementById("title_achievement_unlocked")
+      );
+      title_achievement_unlocked_element.innerHTML = (
         "<span style=\"color: steelblue\">"
         + "They impact the"
-        + " <span style=\"text-decoration-line: line-through;\">decimal</span>(achievement unlocked)"
+        + " <span style=\"text-decoration-line: line-through;\">"
+        + "decimal</span> (achievement unlocked)"
         + " numbers that can be written."
         + "</span>"
       );
@@ -350,20 +394,20 @@
       let stepElement = document.getElementById("step");
       minElement.inputMode = "text";
       minElement.removeAttribute("pattern");
-      minElement.title = "This input has no pattern."
+      minElement.title = "This input has no pattern.";
       maxElement.inputMode = "text";
       maxElement.removeAttribute("pattern");
-      maxElement.title = "This input has no pattern."
+      maxElement.title = "This input has no pattern.";
       stepElement.inputMode = "text";
       stepElement.removeAttribute("pattern");
-      stepElement.title = "This input has no pattern."
+      stepElement.title = "This input has no pattern.";
     }
 
 
     function test_validated(){
       document.getElementById("test_your_result").innerHTML = (
         "<span style=\"color: forestgreen\">"
-        + "Test your result: congratulations it works !"
+        + "Test your result: Congratulations it works !"
         + "</span>"
       );
     }
@@ -372,14 +416,18 @@
     function reinit_test_your_result(){
       document.getElementById("test_your_result").innerHTML = (
         "<span style=\"color: crimson\">"
-        + "Test your result: congratulations it does not validate your string ! It may have been your goal anyway :)"
+        + "Test your result:"
+        + " Congratulations it does not validate your string !"
+        + " It may have been your goal anyway :)"
         + "</span>"
       );
       document.getElementById("submit_test").click();
     }
 
 
-    const url_search_params = new URLSearchParams(window.location.search);
+    const url_search_params = new URLSearchParams(
+      window.location.search
+    );
     let parameters = {
       min: "",
       is_min_excluded: false,
@@ -410,8 +458,12 @@
         url_search_params.get(parameter_name) !== undefined
         && url_search_params.get(parameter_name) !== null
       ){
-        document.getElementById(parameter_name).value = url_search_params.get(parameter_name);
-        parameters[parameter_name] = url_search_params.get(parameter_name);
+        document.getElementById(parameter_name).value = (
+          url_search_params.get(parameter_name)
+        );
+        parameters[parameter_name] = (
+          url_search_params.get(parameter_name)
+        );
       }
     }
 
@@ -429,21 +481,29 @@
         url_search_params.get(parameter_name) !== undefined
         && url_search_params.get(parameter_name) !== null
       ){
-        document.getElementById(parameter_name).value = url_search_params.get(parameter_name);
+        document.getElementById(parameter_name).value = (
+          url_search_params.get(parameter_name)
+        );
         if(url_search_params.get(parameter_name) === ""){
           parameters[parameter_name] = null;
         }
         else{
           if(
             url_search_params.get(parameter_name)
-            === Math.abs(parseInt(url_search_params.get(parameter_name))).toString()
+            === Math.abs(
+              parseInt(url_search_params.get(parameter_name))
+            ).toString()
           ){
-            parameters[parameter_name] = parseInt(url_search_params.get(parameter_name));
+            parameters[parameter_name] = parseInt(
+              url_search_params.get(parameter_name)
+            );
           }
           else{
             error_message += (
-              "Value \"" + url_search_params.get(parameter_name) + "\""
-              + " for " + parameter_name + " is incorrect (probably too big).\n"
+              "Value \"" + url_search_params.get(parameter_name)
+              + "\""
+              + " for " + parameter_name
+              + " is incorrect (probably too big).\n"
               + "<br>"
             );
           }
@@ -459,10 +519,18 @@
     set_text_parameter_in_form("step");
     set_checkbox_parameter_in_form("allow_leading_zeros");
     set_checkbox_parameter_in_form("allow_trailing_zeros");
-    set_positive_integer_parameter_in_form("min_number_of_digits_before_decimal_separator");
-    set_positive_integer_parameter_in_form("max_number_of_digits_before_decimal_separator");
-    set_positive_integer_parameter_in_form("min_number_of_digits_after_decimal_separator");
-    set_positive_integer_parameter_in_form("max_number_of_digits_after_decimal_separator");
+    set_positive_integer_parameter_in_form(
+      "min_number_of_digits_before_decimal_separator"
+    );
+    set_positive_integer_parameter_in_form(
+      "max_number_of_digits_before_decimal_separator"
+    );
+    set_positive_integer_parameter_in_form(
+      "min_number_of_digits_after_decimal_separator"
+    );
+    set_positive_integer_parameter_in_form(
+      "max_number_of_digits_after_decimal_separator"
+    );
     set_positive_integer_parameter_in_form("min_number_of_digits");
     set_positive_integer_parameter_in_form("max_number_of_digits");
     set_checkbox_parameter_in_form("allow_zero_with_minus");
@@ -494,7 +562,10 @@
       achievement_unlocked();
     }
 
-    function explode_and_check_unicity(parameter_name, some_error_message){
+    function explode_and_check_unicity(
+      parameter_name,
+      some_error_message
+    ){
       let some_array = Array.from(parameters[parameter_name]);
       let unique_array = [... new Set(some_array)];
       if(some_array.length !== unique_array.length) {
@@ -503,9 +574,18 @@
       parameters[parameter_name] = unique_array;
     }
     explode_and_check_unicity("digits", "You have repeated digits.");
-    explode_and_check_unicity("decimal_separators", "You have repeated decimal separators.");
-    explode_and_check_unicity("plus_signs", "You have repeated plus signs.");
-    explode_and_check_unicity("minus_signs", "You have repeated minus signs.");
+    explode_and_check_unicity(
+      "decimal_separators",
+      "You have repeated decimal separators.",
+    );
+    explode_and_check_unicity(
+      "plus_signs",
+      "You have repeated plus signs.",
+    );
+    explode_and_check_unicity(
+      "minus_signs",
+      "You have repeated minus signs.",
+    );
 
     if(parameters.digits.length < 2) {
       error_message += (
@@ -564,8 +644,14 @@
 
     let zero_digit = parameters.digits[0];
     let unit_digit = parameters.digits[1];
-    let positive_digits = parameters.digits.slice(1, parameters.digits.length);
-    let sign_signs = [...parameters.plus_signs, ...parameters.minus_signs];
+    let positive_digits = parameters.digits.slice(
+      1,
+      parameters.digits.length,
+    );
+    let sign_signs = [
+      ...parameters.plus_signs,
+      ...parameters.minus_signs,
+    ];
 
     let all_characters = [
       ...parameters.digits,
@@ -578,20 +664,24 @@
       let digits_array = Array.from(some_number_string);
       let digits_array_result = [];
       const debug = false;
-      if(debug){ console.log("canonize_number() digits_array1", digits_array); }
+      if(debug){
+        console.log("canonize_number() digits_array1", digits_array);
+      }
 
       // Check that all characters are allowed
       for(let digit of digits_array){
         if(!all_characters.includes(digit)){
           error_message += (
-            "You gave a " + number_name + " number with unknown character \"" + digit + "\".\n"
+            "You gave a " + number_name
+            + " number with unknown character \"" + digit + "\".\n"
             + "<br>"
           );
           return null;
         }
       }
 
-      // Check that there is at most one plus sign or one minus sign and that is the first character
+      // Check that there is at most one plus sign or one minus sign
+      // and that it is the first character.
       let first = true;
       for(let digit of digits_array){
         if(!parameters.plus_signs.includes(digit)){
@@ -600,7 +690,8 @@
         if(sign_signs.includes(digit)){
           if(!first){
             error_message += (
-              "You gave a " + number_name + " number with wrong sign.\n"
+              "You gave a " + number_name
+              + " number with wrong sign.\n"
               + "<br>"
             );
             return null;
@@ -608,7 +699,12 @@
         }
         first = false;
       }
-      if(debug){ console.log("canonize_number() digits_array_result1", digits_array_result); }
+      if(debug){
+        console.log(
+          "canonize_number() digits_array_result1",
+          digits_array_result,
+        );
+      }
 
       // Filter out leading zeros except before decimal separator
       digits_array = digits_array_result;
@@ -630,7 +726,12 @@
           digits_array_result.push(digit);
         }
       }
-      if(debug){ console.log("canonize_number() digits_array_result2", digits_array_result); }
+      if(debug){
+        console.log(
+          "canonize_number() digits_array_result2",
+          digits_array_result,
+        );
+      }
       let number_of_decimal_separators = digits_array_result.reduce(
         (acc, digit) => {
           if(parameters.decimal_separators.includes(digit)){
@@ -639,11 +740,17 @@
           return acc;
         },
         0,
-      )
-      if(debug){ console.log("canonize_number() number_of_decimal_separators", number_of_decimal_separators); }
+      );
+      if(debug){
+        console.log(
+          "canonize_number() number_of_decimal_separators",
+          number_of_decimal_separators,
+        );
+      }
       if(number_of_decimal_separators > 1){
         error_message += (
-          "You gave a " + number_name + " number with too many decimal separators.\n"
+          "You gave a " + number_name
+          + " number with too many decimal separators.\n"
           + "<br>"
         );
         return null;
@@ -661,7 +768,12 @@
           break;
         }
       }
-      if(debug){ console.log("canonize_number() digits_array_result3", digits_array_result); }
+      if(debug){
+        console.log(
+          "canonize_number() digits_array_result3",
+          digits_array_result,
+        );
+      }
 
       return digits_array_result;
     }
@@ -704,7 +816,7 @@
     ];
     const upper_case_letters = lower_case_letters.map(
       (value) => { return value.toUpperCase(); }
-    )
+    );
 
 
     function shrink_array_of_characters_with(
@@ -736,7 +848,9 @@
           continue;
         }
         if(end_of_range === null){
-          if(element.charCodeAt(0) === start_of_range.charCodeAt(0) + 1){
+          if(
+            element.charCodeAt(0) === start_of_range.charCodeAt(0) + 1
+          ){
             end_of_range = element;
           }
           else{
@@ -749,7 +863,10 @@
           end_of_range = element;
           continue;
         }
-        if(end_of_range.charCodeAt(0) === start_of_range.charCodeAt(0) + 1){
+        if(
+          end_of_range.charCodeAt(0)
+          === start_of_range.charCodeAt(0) + 1
+        ){
           result.push(start_of_range);
           result.push(end_of_range);
         }
@@ -763,7 +880,10 @@
         result.push(start_of_range);
       }
       else{
-        if(end_of_range.charCodeAt(0) === start_of_range.charCodeAt(0) + 1){
+        if(
+          end_of_range.charCodeAt(0)
+          === start_of_range.charCodeAt(0) + 1
+        ){
           result.push(start_of_range);
           result.push(end_of_range);
         }
@@ -835,7 +955,7 @@
         repeat += "0," + max;
       }
       else if(max === null){
-        repeat += min + ","
+        repeat += min + ",";
       }
       else {
         repeat += min + "," + max;
@@ -849,27 +969,42 @@
       // We compute the building blocks for the regular expression.
       let any_sign_regexp = compute_regexp_for_any_character_in_array(
         sign_signs
-      )
-      let any_digit_regexp = compute_regexp_for_any_character_in_array(
-        parameters.digits
-      )
-      let any_decimal_separator = (
+      );
+      let any_digit_regexp = (
+        compute_regexp_for_any_character_in_array(
+          parameters.digits
+        )
+      );
+      let any_decimal_separator_regexp = (
         compute_regexp_for_any_character_in_array(
           parameters.decimal_separators
         )
-      )
-      let zero_digit_regexp = compute_regexp_for_any_character_in_array(
-          [zero_digit]
       );
-      let minus_sign_regexp = compute_regexp_for_any_character_in_array(
-        parameters.minus_signs
-      )
-      let plus_sign_regexp = compute_regexp_for_any_character_in_array(
-        parameters.plus_signs
-      )
-      let any_positive_digit_regexp = compute_regexp_for_any_character_in_array(
-        positive_digits
-      )
+      let zero_digit_regexp = (
+        compute_regexp_for_any_character_in_array(
+          [zero_digit]
+        )
+      );
+      let minus_sign_regexp = (
+        compute_regexp_for_any_character_in_array(
+          parameters.minus_signs
+        )
+      );
+      let plus_sign_regexp = (
+        compute_regexp_for_any_character_in_array(
+          parameters.plus_signs
+        )
+      );
+      let any_positive_digit_regexp = (
+        compute_regexp_for_any_character_in_array(
+          positive_digits
+        )
+      );
+      let any_digit_or_decimal_separator_regexp = (
+        compute_regexp_for_any_character_in_array(
+          [...parameters.digits, ...parameters.decimal_separators]
+        )
+      );
 
       let regular_expression_string = "";
       let repeat_before = "+";
@@ -883,7 +1018,7 @@
         repeat_before = get_repeat_string(
           parameters.min_number_of_digits_before_decimal_separator,
           parameters.max_number_of_digits_before_decimal_separator,
-        )
+        );
       }
       if(
         parameters.min_number_of_digits_after_decimal_separator
@@ -894,7 +1029,7 @@
         repeat_after = get_repeat_string(
           parameters.min_number_of_digits_after_decimal_separator,
           parameters.max_number_of_digits_after_decimal_separator,
-        )
+        );
       }
       // bare requirement with positive look-ahead
       let bare_requirement_as_positive_look_ahead = false;
@@ -904,7 +1039,7 @@
         //+ any_digit_regexp + "+" // Followed by some digits
         + any_digit_regexp + repeat_before
         + "("
-          + any_decimal_separator
+          + any_decimal_separator_regexp
           // + any_digit_regexp + "+"
           + any_digit_regexp + repeat_after
           + ")?" // Then maybe a decimal part
@@ -915,7 +1050,7 @@
           "(?="
           + bare_requirement
           + "$)" // We want all the string.
-        )
+        );
       }
       if(!parameters.allow_leading_zeros){
         // No leading zero with negative look-ahead
@@ -935,7 +1070,7 @@
             "(?!"
             + any_sign_regexp + "?" // It may start with a sign
             + any_digit_regexp + "+" // Followed by some digits
-            + any_decimal_separator
+            + any_decimal_separator_regexp
             + any_digit_regexp + "*"
             + zero_digit_regexp
             + "$)" // We want all the string.
@@ -945,7 +1080,7 @@
           regular_expression_string += (
             "(?!"
             + ".*"
-            + any_decimal_separator
+            + any_decimal_separator_regexp
             + ".*"
             + zero_digit_regexp
             + "$)" // We want all the string.
@@ -960,7 +1095,7 @@
           + minus_sign_regexp
           + zero_digit_regexp + "+"
           + "("
-            + any_decimal_separator
+            + any_decimal_separator_regexp
             + zero_digit_regexp + "+"
             + ")?" // Then maybe a decimal part
           + "$)" // We want all the string.
@@ -973,7 +1108,7 @@
           + plus_sign_regexp
           + zero_digit_regexp + "+"
           + "("
-            + any_decimal_separator
+            + any_decimal_separator_regexp
             + zero_digit_regexp + "+"
             + ")?" // Then maybe a decimal part
           + "$)" // We want all the string.
@@ -989,9 +1124,43 @@
           + plus_sign_regexp
           + any_digit_regexp + "+"
           + "("
-            + any_decimal_separator
+            + any_decimal_separator_regexp
             + any_digit_regexp + "+"
             + ")?" // Then maybe a decimal part
+          + "$)" // We want all the string.
+        );
+      }
+
+      if(
+        parameters.min_number_of_digits !== null
+        || parameters.max_number_of_digits !== null
+      ){
+        let repeat_without_decimal_separator = get_repeat_string(
+          parameters.min_number_of_digits,
+          parameters.max_number_of_digits,
+        );
+        let repeat_with_decimal_separator = get_repeat_string(
+          (
+            parameters.min_number_of_digits === null
+            ? null
+            : parameters.min_number_of_digits + 1
+          ),
+          (
+            parameters.max_number_of_digits === null
+            ? null
+            : parameters.max_number_of_digits + 1
+          ),
+        );
+        regular_expression_string += (
+          "(?="
+          + any_sign_regexp + "?" // It may start with a sign
+          + "("
+              + any_digit_regexp + repeat_without_decimal_separator
+            + "|"
+              + "(?=.*" + any_decimal_separator_regexp + ")"
+              + any_digit_or_decimal_separator_regexp
+              + repeat_with_decimal_separator
+            + ")"
           + "$)" // We want all the string.
         );
       }
