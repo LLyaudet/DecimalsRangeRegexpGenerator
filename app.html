@@ -296,6 +296,33 @@
     ></textarea>
   </div>
 
+  <hr>
+  <h4 id="test_your_result">Test your result</h4>
+  <form action="javascript:test_validated()">
+    <label for="test_string">
+      Test string
+    </label>
+    <div>
+      <input
+        type="text"
+        inputmode="text"
+        id="test_string"
+        name="test_string"
+        onkeyup="reinit_test_your_result()"
+      >
+    </div>
+    <button
+      id="submit_test"
+      type="submit"
+      style="display: none;"
+    >Test</button>
+    <p>
+      Note that an empty string will always validate.
+      If you want to exclude an empty string,
+      you have to add "required" as an attribute to your HTML input.
+    </p>
+  </form>
+
   <br>
   <br>
   <hr>
@@ -330,6 +357,25 @@
       stepElement.inputMode = "text";
       stepElement.removeAttribute("pattern");
       stepElement.title = "This input has no pattern."
+    }
+
+
+    function test_validated(){
+      document.getElementById("test_your_result").innerHTML = (
+        "<span style=\"color: forestgreen\">"
+        + "Test your result: congratulations it works !"
+        + "</span>"
+      );
+    }
+
+
+    function reinit_test_your_result(){
+      document.getElementById("test_your_result").innerHTML = (
+        "<span style=\"color: crimson\">"
+        + "Test your result: congratulations it does not validate your string ! It may have been your goal anyway :)"
+        + "</span>"
+      );
+      document.getElementById("submit_test").click();
     }
 
 
@@ -816,6 +862,7 @@
           [zero_digit]
       );
 
+      let regular_expression_string = "";
       let repeat_before = "+";
       let repeat_after = "+";
       if(
@@ -841,9 +888,10 @@
         )
       }
       // bare requirement with positive look-ahead
-      let regular_expression_string = (
-        "(?="
-        + any_sign_regexp + "?" // It may start with a sign
+      let bare_requirement_as_positive_look_ahead = false;
+      let bare_requirement = (
+        // "(?=" +
+        any_sign_regexp + "?" // It may start with a sign
         //+ any_digit_regexp + "+" // Followed by some digits
         + any_digit_regexp + repeat_before
         + "("
@@ -851,8 +899,15 @@
           // + any_digit_regexp + "+"
           + any_digit_regexp + repeat_after
           + ")?" // Then maybe a decimal part
-        + "$)" // We want all the string.
+        // + "$)" // We want all the string.
       );
+      if(bare_requirement_as_positive_look_ahead){
+        regular_expression_string += (
+          "(?="
+          + bare_requirement
+          + "$)" // We want all the string.
+        )
+      }
       if(!parameters.allow_leading_zeros){
         // No leading zero with negative look-ahead
         regular_expression_string += (
@@ -891,10 +946,23 @@
 
       // Negative or positive look-behind is not enough.
       // At the end, we must truly match the string.
-      regular_expression_string += ".*";
+      if(bare_requirement_as_positive_look_ahead){
+        regular_expression_string += ".*";
+      }
+      else{
+        regular_expression_string += bare_requirement;
+      }
 
       document.getElementById("result").innerHTML = (
         regular_expression_string
+      );
+      let test_string_element = (
+        document.getElementById("test_string")
+      );
+      test_string_element.pattern = regular_expression_string;
+      test_string_element.title = (
+        "This input has the following pattern: "
+        + regular_expression_string
       );
     }
 
