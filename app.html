@@ -41,10 +41,10 @@
     <h5 id="title_achievement_unlocked">
       They impact the decimal numbers that can be written.
     </h5>
+    <p id="is_a_number_regexp"></p>
     <div>
       <label for="min">
         Min (optional):
-        <span style="color: crimson">Not fully working</span>
       </label>
       <input
         type="text"
@@ -599,7 +599,7 @@
     ){
       let some_array = Array.from(parameters[parameter_name]);
       let unique_array = [... new Set(some_array)];
-      if(some_array.length !== unique_array.length) {
+      if(some_array.length !== unique_array.length){
         error_message += some_error_message + "\n<br>";
       }
       parameters[parameter_name] = unique_array;
@@ -618,7 +618,7 @@
       "You have repeated minus signs.",
     );
 
-    if(parameters.digits.length < 2) {
+    if(parameters.digits.length < 2){
       error_message += (
         "You need at least two digits for positional notation.\n"
         + "<br>"
@@ -738,6 +738,49 @@
         );
       }
 
+      let number_of_decimal_separators = digits_array_result.reduce(
+        (acc, digit) => {
+          if(parameters.decimal_separators.includes(digit)){
+            ++acc;
+          }
+          return acc;
+        },
+        0,
+      );
+      if(debug){
+        console.log(
+          "canonize_number() number_of_decimal_separators",
+          number_of_decimal_separators,
+        );
+      }
+      if(number_of_decimal_separators > 1){
+        error_message += (
+          "You gave a " + number_name
+          + " number with too many decimal separators.\n"
+          + "<br>"
+        );
+        return null;
+      }
+      if(number_of_decimal_separators === 1){
+        // We remove trailing zeros after decimal separator.
+        while(true){
+          let digit = digits_array_result.pop();
+          if(digit === zero_digit){
+            continue;
+          }
+          if(!parameters.decimal_separators.includes(digit)){
+            digits_array_result.push(digit);
+          }
+          break;
+        }
+      }
+      if(debug){
+        console.log(
+          "canonize_number() digits_array_result2",
+          digits_array_result,
+        );
+      }
+
       // Filter out leading zeros except before decimal separator
       digits_array = digits_array_result;
       digits_array_result = [];
@@ -764,49 +807,21 @@
       }
       if(debug){
         console.log(
-          "canonize_number() digits_array_result2",
+          "canonize_number() digits_array_result3",
           digits_array_result,
         );
       }
-      let number_of_decimal_separators = digits_array_result.reduce(
-        (acc, digit) => {
-          if(parameters.decimal_separators.includes(digit)){
-            ++acc;
-          }
-          return acc;
-        },
-        0,
-      );
-      if(debug){
-        console.log(
-          "canonize_number() number_of_decimal_separators",
-          number_of_decimal_separators,
-        );
-      }
-      if(number_of_decimal_separators > 1){
-        error_message += (
-          "You gave a " + number_name
-          + " number with too many decimal separators.\n"
-          + "<br>"
-        );
-        return null;
-      }
-
-      if(number_of_decimal_separators === 1){
-        while(true){
-          let digit = digits_array_result.pop();
-          if(digit === zero_digit){
-            continue;
-          }
-          if(!parameters.decimal_separators.includes(digit)){
-            digits_array_result.push(digit);
-          }
-          break;
-        }
+      if(digits_array_result.length === 0
+        || (
+          digits_array_result.length === 1
+          && parameters.minus_signs.includes(digits_array_result[0])
+        )
+      ){
+        digits_array_result = [zero_digit]
       }
       if(debug){
         console.log(
-          "canonize_number() digits_array_result3",
+          "canonize_number() final result",
           digits_array_result,
         );
       }
@@ -1042,6 +1057,23 @@
         )
       );
 
+      let is_a_number_regexp = (
+        any_sign_regexp + "?" // It may start with a sign
+        + any_digit_regexp + "+" // Followed by some digits
+        + "("
+          + any_decimal_separator_regexp
+          + any_digit_regexp + "+"
+          + ")?" // Then maybe a decimal part
+      );
+      document.getElementById("is_a_number_regexp").innerHTML = (
+        "You are looking at numbers that must satisfy"
+        + " this regular expression: "
+        + "<span style=\"color: forestgreen\">"
+        + escapeHTML(is_a_number_regexp)
+        + "</span>"
+        + "<br>"
+        + "But read on to see the other constraints you must add to it."
+      );
       let regular_expression_string = "";
       let repeat_before = "+";
       let repeat_after = "+";
@@ -1201,7 +1233,22 @@
         );
       }
 
+
       function equals_regexp(some_number_array){
+        // Needs canonized numbers.
+        if(
+          some_number_array.length === 1
+          && some_number_array[0] === zero_digit
+        ){
+          return (
+            any_sign_regexp + "?"
+            + zero_digit_regexp + "+"
+            + "("
+              + any_decimal_separator_regexp
+              + zero_digit_regexp + "+"
+            + ")?"
+          );
+        }
         let equals_regexp = "";
         let start_at = 0;
         if(parameters.minus_signs.includes(some_number_array[0])){
@@ -1225,20 +1272,308 @@
         if(has_decimal_separator){
           equals_regexp += zero_digit_regexp + "*";
         }
+        else{
+          equals_regexp += (
+            "("
+            + any_decimal_separator_regexp
+            + zero_digit_regexp + "*"
+            + ")?"
+          );
+        }
+
         equals_regexp += "$";
         return equals_regexp;
       }
 
 
+      // Symmetric to positive digits
+      let not_last_digits = parameters.digits.slice(
+        0,
+        parameters.digits.length - 1,
+      );
+
+      let next_digits_regexp_map = new Map();
+      for(let i = 0; i < parameters.digits.length - 1; ++i){
+        next_digits_regexp_map.set(
+          parameters.digits[i],
+          compute_regexp_for_any_character_in_array(
+            parameters.digits.slice(i + 1, parameters.digits.length)
+          ),
+        );
+      }
+
+      let previous_digits_regexp_map = new Map();
+      for(let i = 1; i < parameters.digits.length; ++i){
+        previous_digits_regexp_map.set(
+          parameters.digits[i],
+          compute_regexp_for_any_character_in_array(
+            parameters.digits.slice(0, i)
+          ),
+        );
+      }
+
+
+      function positive_at_least_regexp(some_number_array){
+        // Needs canonized numbers.
+        if(parameters.minus_signs.includes(some_number_array[0])){
+          throw Error(
+            "Do not call positive_at_least_regexp()"
+            + " with a negative number."
+          );
+        }
+        let result_regexp = "";
+        let has_a_decimal_separator = false;
+        let number_of_digits_before_decimal_separator = 0;
+        if(zero_digit === some_number_array[0]){
+          // A positive number less than one.
+          if(some_number_array.length === 1){
+            // At least zero
+            result_regexp += (
+              "(" // A zero
+                + any_sign_regexp
+                + zero_digit_regexp + "+"
+                + "("
+                  + any_decimal_separator_regexp
+                  + zero_digit_regexp + "+"
+                  + ")?"
+              + "|" // Or a positive number
+                + "(?!" + minus_sign_regexp + ")"
+                + ".*" + any_positive_digit_regexp + ".*"
+              + ")$"
+            )
+            return result_regexp;
+          }
+          // 0.xyz... counts as one digit.
+          number_of_digits_before_decimal_separator = 1;
+          has_a_decimal_separator = true;
+        }
+        else{
+          for(let digit of some_number_array){
+            if(parameters.decimal_separators.includes(digit)){
+              has_a_decimal_separator = true;
+              break;
+            }
+            if(sign_signs.includes(digit)){
+              continue;
+            }
+            ++number_of_digits_before_decimal_separator;
+          }
+        }
+        let common_prefix = (
+          plus_sign_regexp + "?"
+          + any_digit_regexp + "*"
+        );
+        // A number with more digits before decimal separator
+        result_regexp += (
+          "("
+            + common_prefix
+            + any_positive_digit_regexp
+            + any_digit_regexp
+            + (number_of_digits_before_decimal_separator > 1
+              ? "{"
+              + number_of_digits_before_decimal_separator
+              + ",}"
+              : "" // A number at least "base"
+            )
+            + ".*"
+        );
+
+        // Now we need to deal with numbers that do not have
+        // a bigger power of the base than our number.
+        for(let i = 0; i < some_number_array.length; ++i){
+          let digit = some_number_array[i];
+          --number_of_digits_before_decimal_separator;
+          if(not_last_digits.includes(digit)){
+            // We add when the checked number can be bigger
+            // than our number on the current power.
+            result_regexp += (
+              "|" + common_prefix
+              + next_digits_regexp_map.get(digit)
+            );
+            if(number_of_digits_before_decimal_separator > 0){
+              result_regexp += (
+                any_digit_regexp
+                + (number_of_digits_before_decimal_separator > 1
+                  ? "{"
+                  + number_of_digits_before_decimal_separator
+                  + "}"
+                  : ""
+                )
+              )
+            }
+            // We can always add digits after.
+            result_regexp += ".*";
+          }
+          common_prefix += digit;
+        }
+        // Last, we add our number with more decimals.
+        result_regexp += (
+          "|" + common_prefix
+          // Variant 1
+          // + (has_a_decimal_separator
+          //   ? ""
+          //   : any_decimal_separator_regexp
+          // )
+          // + any_digit_regexp + "*"
+          // Variant 2
+          + ".*"
+          // In at least context with positive numbers,
+          // Variant 1 and 2 are equivalent.
+        );
+
+        // We close our sequence of alternatives.
+        result_regexp += ")$";
+        return result_regexp;
+      }
+
+
+      function negative_at_least_regexp(some_number_array){
+        // Needs canonized numbers.
+        if(!parameters.minus_signs.includes(some_number_array[0])){
+          throw Error(
+            "Do not call negative_at_least_regexp()"
+            + " with a positive number."
+          );
+        }
+        let result_regexp = "";
+        let has_a_decimal_separator = false;
+        let number_of_digits_before_decimal_separator = 0;
+        if(zero_digit === some_number_array[0]){
+          // A negative number more than -1.
+          // -0.xyz... counts as one digit.
+          number_of_digits_before_decimal_separator = 1;
+          has_a_decimal_separator = true;
+        }
+        else{
+          for(let digit of some_number_array){
+            if(parameters.decimal_separators.includes(digit)){
+              has_a_decimal_separator = true;
+              break;
+            }
+            if(sign_signs.includes(digit)){
+              continue;
+            }
+            ++number_of_digits_before_decimal_separator;
+          }
+        }
+        result_regexp += (
+          "("
+            // We allow all positive numbers.
+            + "(?!" + minus_sign_regexp + ")"
+            + ".*"
+        );
+        // A number with fewer digits before decimal separator
+        if(number_of_digits_before_decimal_separator > 1){
+          result_regexp += (
+            "|" + minus_sign_regexp
+            + zero_digit_regexp + "*"
+            + any_digit_regexp
+            + (number_of_digits_before_decimal_separator > 2
+              ? "{0,"
+              + (number_of_digits_before_decimal_separator - 1)
+              + "}"
+              : ""
+            )
+            + "($|" + any_decimal_separator_regexp + ".*)"
+          );
+        }
+
+        let common_prefix = (
+          minus_sign_regexp
+          + zero_digit_regexp + "*"
+        );
+        for(let i = 1; i < some_number_array.length; ++i){
+          let digit = some_number_array[i];
+          --number_of_digits_before_decimal_separator;
+          if(positive_digits.includes(digit)){
+            // We add when the checked number can be lower
+            // than our number on the current power.
+            result_regexp += (
+              "|" + common_prefix
+              + previous_digits_regexp_map.get(digit)
+            );
+            if(number_of_digits_before_decimal_separator >= 0){
+              if(number_of_digits_before_decimal_separator > 0){
+                result_regexp += (
+                  any_digit_regexp
+                  + (number_of_digits_before_decimal_separator > 1
+                    ? "{"
+                    + number_of_digits_before_decimal_separator
+                    + "}"
+                    : ""
+                  )
+                );
+              }
+              result_regexp += (
+                "($|" + any_decimal_separator_regexp + ".*)"
+              );
+            }
+            else{
+              result_regexp += ".*";
+            }
+          }
+          common_prefix += digit;
+        }
+        // Last, we add our number with more zeros at the end.
+        result_regexp += (
+          "|" + common_prefix
+          + (has_a_decimal_separator
+              ? zero_digit_regexp + "*"
+              : "("
+              + any_decimal_separator_regexp
+              + zero_digit_regexp + "*"
+              + ")?"
+            )
+        );
+
+        // We close our sequence of alternatives.
+        result_regexp += ")$";
+        return result_regexp;
+      }
+
+
       let min_equals_regexp = null;
-      if(parameters.min  !== ""){
+      let at_least_min_regexp = null;
+      let more_than_min_regexp = null;
+      if(parameters.min !== ""){
         min_equals_regexp = equals_regexp(parameters.min);
+        if(parameters.minus_signs.includes(parameters.min[0])){
+          at_least_min_regexp = negative_at_least_regexp(
+            parameters.min
+          );
+        }
+        else{
+          at_least_min_regexp = positive_at_least_regexp(
+            parameters.min
+          );
+        }
+        more_than_min_regexp = (
+          "(?!" + min_equals_regexp + ")"
+          + at_least_min_regexp
+        );
+
         document.getElementById("equals_min").innerHTML = (
           "Here is a regular expression for testing equality"
           + " with min: "
           + "<span style=\"color: forestgreen\">"
           + escapeHTML(min_equals_regexp)
           + "</span>"
+        );
+        document.getElementById("at_least_min").innerHTML = (
+          "Here is a regular expression for testing at least min: "
+          + "<span style=\"color: forestgreen\">"
+          + escapeHTML(at_least_min_regexp)
+          + "</span>"
+        );
+        document.getElementById("more_than_min").innerHTML = (
+          "Here is a regular expression for testing more than min: "
+          + "<span style=\"color: forestgreen\">"
+          + escapeHTML(more_than_min_regexp)
+          + "</span>"
+        );
+
+        regular_expression_string += (
+          "(?=" + at_least_min_regexp + ")"
         );
         if(parameters.is_min_excluded){
           regular_expression_string += (
