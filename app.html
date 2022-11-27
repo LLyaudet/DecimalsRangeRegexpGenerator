@@ -70,7 +70,6 @@
     <div>
       <label for="max">
         Max (optional):
-        <span style="color: crimson">Not fully working</span>
       </label>
       <input
         type="text"
@@ -1330,7 +1329,7 @@
             // At least zero
             result_regexp += (
               "(" // A zero
-                + any_sign_regexp
+                + any_sign_regexp + "?"
                 + zero_digit_regexp + "+"
                 + "("
                   + any_decimal_separator_regexp
@@ -1404,7 +1403,7 @@
             // We can always add digits after.
             result_regexp += ".*";
           }
-          common_prefix += digit;
+          common_prefix += escapeRegExp(digit);
         }
         // Last, we add our number with more decimals.
         result_regexp += (
@@ -1438,7 +1437,7 @@
         let result_regexp = "";
         let has_a_decimal_separator = false;
         let number_of_digits_before_decimal_separator = 0;
-        if(zero_digit === some_number_array[0]){
+        if(zero_digit === some_number_array[1]){
           // A negative number more than -1.
           // -0.xyz... counts as one digit.
           number_of_digits_before_decimal_separator = 1;
@@ -1462,11 +1461,14 @@
             + "(?!" + minus_sign_regexp + ")"
             + ".*"
         );
+        let common_prefix = (
+          minus_sign_regexp
+          + zero_digit_regexp + "*"
+        );
         // A number with fewer digits before decimal separator
         if(number_of_digits_before_decimal_separator > 1){
           result_regexp += (
-            "|" + minus_sign_regexp
-            + zero_digit_regexp + "*"
+            "|" + common_prefix
             + any_digit_regexp
             + (number_of_digits_before_decimal_separator > 2
               ? "{0,"
@@ -1478,10 +1480,6 @@
           );
         }
 
-        let common_prefix = (
-          minus_sign_regexp
-          + zero_digit_regexp + "*"
-        );
         for(let i = 1; i < some_number_array.length; ++i){
           let digit = some_number_array[i];
           --number_of_digits_before_decimal_separator;
@@ -1512,7 +1510,22 @@
               result_regexp += ".*";
             }
           }
-          common_prefix += digit;
+          else if(
+            number_of_digits_before_decimal_separator === 0
+            && i < some_number_array.length - 1
+          ){
+            // The last digit before decimal separator is special
+            // since we must add it anyway,
+            // if there is a decimal part.
+            result_regexp += (
+              "|" + common_prefix
+              + escapeRegExp(digit)
+              + "($|"
+              + any_decimal_separator_regexp
+              + zero_digit_regexp + "*)"
+            );
+          }
+          common_prefix += escapeRegExp(digit);
         }
         // Last, we add our number with more zeros at the end.
         result_regexp += (
@@ -1524,6 +1537,231 @@
               + zero_digit_regexp + "*"
               + ")?"
             )
+        );
+
+        // We close our sequence of alternatives.
+        result_regexp += ")$";
+        return result_regexp;
+      }
+
+
+      function positive_at_most_regexp(some_number_array){
+        // Needs canonized numbers.
+        if(parameters.minus_signs.includes(some_number_array[0])){
+          throw Error(
+            "Do not call positive_at_most_regexp()"
+            + " with a negative number."
+          );
+        }
+        let result_regexp = "";
+        let has_a_decimal_separator = false;
+        let number_of_digits_before_decimal_separator = 0;
+        if(zero_digit === some_number_array[0]){
+          // A positive number less than one.
+          if(some_number_array.length === 1){
+            // At most zero
+            result_regexp += (
+              "(" // A zero
+                + any_sign_regexp + "?"
+                + zero_digit_regexp + "+"
+                + "("
+                  + any_decimal_separator_regexp
+                  + zero_digit_regexp + "+"
+                  + ")?"
+              + "|" // Or a negative number
+                + minus_sign_regexp
+                + ".*" + any_positive_digit_regexp + ".*"
+              + ")$"
+            )
+            return result_regexp;
+          }
+          // 0.xyz... counts as one digit.
+          number_of_digits_before_decimal_separator = 1;
+          has_a_decimal_separator = true;
+        }
+        else{
+          for(let digit of some_number_array){
+            if(parameters.decimal_separators.includes(digit)){
+              has_a_decimal_separator = true;
+              break;
+            }
+            if(sign_signs.includes(digit)){
+              continue;
+            }
+            ++number_of_digits_before_decimal_separator;
+          }
+        }
+        result_regexp += (
+          "("
+            // We allow all negative numbers.
+            + minus_sign_regexp
+            + ".*"
+        );
+
+        let common_prefix = (
+          plus_sign_regexp + "?"
+          + zero_digit_regexp + "*"
+        );
+        // A number with fewer digits before decimal separator
+        if(number_of_digits_before_decimal_separator > 1){
+          result_regexp += (
+            "|"
+            + common_prefix
+            + any_digit_regexp
+            + (number_of_digits_before_decimal_separator > 2
+              ? "{0,"
+              + (number_of_digits_before_decimal_separator - 1)
+              + "}"
+              : ""
+            )
+            + "($|" + any_decimal_separator_regexp + ".*)"
+          );
+        }
+
+        for(let i = 0; i < some_number_array.length; ++i){
+          let digit = some_number_array[i];
+          --number_of_digits_before_decimal_separator;
+          if(positive_digits.includes(digit)){
+            // We add when the checked number can be lower
+            // than our number on the current power.
+            result_regexp += (
+              "|" + common_prefix
+              + previous_digits_regexp_map.get(digit)
+            );
+            if(number_of_digits_before_decimal_separator >= 0){
+              if(number_of_digits_before_decimal_separator > 0){
+                result_regexp += (
+                  any_digit_regexp
+                  + (number_of_digits_before_decimal_separator > 1
+                    ? "{"
+                    + number_of_digits_before_decimal_separator
+                    + "}"
+                    : ""
+                  )
+                );
+              }
+              result_regexp += (
+                "($|" + any_decimal_separator_regexp + ".*)"
+              );
+            }
+            else{
+              result_regexp += ".*";
+            }
+          }
+          else if(
+            number_of_digits_before_decimal_separator === 0
+            && i < some_number_array.length - 1
+          ){
+            // The last digit before decimal separator is special
+            // since we must add it anyway,
+            // if there is a decimal part.
+            result_regexp += (
+              "|" + common_prefix
+              + escapeRegExp(digit)
+              + "($|"
+              + any_decimal_separator_regexp
+              + zero_digit_regexp + "*)"
+            );
+          }
+          common_prefix += escapeRegExp(digit);
+        }
+        // Last, we add our number with more zeros at the end.
+        result_regexp += (
+          "|" + common_prefix
+          + (has_a_decimal_separator
+              ? zero_digit_regexp + "*"
+              : "("
+              + any_decimal_separator_regexp
+              + zero_digit_regexp + "*"
+              + ")?"
+            )
+        );
+
+        // We close our sequence of alternatives.
+        result_regexp += ")$";
+        return result_regexp;
+      }
+
+
+      function negative_at_most_regexp(some_number_array){
+        // Needs canonized numbers.
+        if(!parameters.minus_signs.includes(some_number_array[0])){
+          throw Error(
+            "Do not call negative_at_most_regexp()"
+            + " with a positive number."
+          );
+        }
+        let result_regexp = "";
+        let has_a_decimal_separator = false;
+        let number_of_digits_before_decimal_separator = 0;
+        if(zero_digit === some_number_array[1]){
+          // A negative number less than one.
+          number_of_digits_before_decimal_separator = 1;
+          has_a_decimal_separator = true;
+        }
+        else{
+          for(let digit of some_number_array){
+            if(parameters.decimal_separators.includes(digit)){
+              has_a_decimal_separator = true;
+              break;
+            }
+            if(sign_signs.includes(digit)){
+              continue;
+            }
+            ++number_of_digits_before_decimal_separator;
+          }
+        }
+        let common_prefix = (
+          minus_sign_regexp
+          + any_digit_regexp + "*"
+        );
+        // A number with more digits before decimal separator
+        result_regexp += (
+          "("
+            + common_prefix
+            + any_positive_digit_regexp
+            + any_digit_regexp
+            + (number_of_digits_before_decimal_separator > 1
+              ? "{"
+              + number_of_digits_before_decimal_separator
+              + ",}"
+              : "" // A number at least "base"
+            )
+            + ".*"
+        );
+
+        // Now we need to deal with numbers that do not have
+        // a bigger power of the base than our number.
+        for(let i = 1; i < some_number_array.length; ++i){
+          let digit = some_number_array[i];
+          --number_of_digits_before_decimal_separator;
+          if(not_last_digits.includes(digit)){
+            // We add when the checked number can be bigger
+            // than our number on the current power.
+            result_regexp += (
+              "|" + common_prefix
+              + next_digits_regexp_map.get(digit)
+            );
+            if(number_of_digits_before_decimal_separator > 0){
+              result_regexp += (
+                any_digit_regexp
+                + (number_of_digits_before_decimal_separator > 1
+                  ? "{"
+                  + number_of_digits_before_decimal_separator
+                  + "}"
+                  : ""
+                )
+              )
+            }
+            // We can always add digits after.
+            result_regexp += ".*";
+          }
+          common_prefix += escapeRegExp(digit);
+        }
+        // Last, we add our number with more decimals.
+        result_regexp += (
+          "|" + common_prefix
+          + ".*"
         );
 
         // We close our sequence of alternatives.
@@ -1583,14 +1821,47 @@
       }
 
       let max_equals_regexp = null;
-      if(parameters.max  !== ""){
+      let at_most_max_regexp = null;
+      let less_than_max_regexp = null;
+      if(parameters.max !== ""){
         max_equals_regexp = equals_regexp(parameters.max);
+        if(parameters.minus_signs.includes(parameters.max[0])){
+          at_most_max_regexp = negative_at_most_regexp(
+            parameters.max
+          );
+        }
+        else{
+          at_most_max_regexp = positive_at_most_regexp(
+            parameters.max
+          );
+        }
+        less_than_max_regexp = (
+          "(?!" + max_equals_regexp + ")"
+          + at_most_max_regexp
+        );
+
         document.getElementById("equals_max").innerHTML = (
           "Here is a regular expression for testing equality"
           + " with max: "
           + "<span style=\"color: forestgreen\">"
           + escapeHTML(max_equals_regexp)
           + "</span>"
+        );
+        document.getElementById("at_most_max").innerHTML = (
+          "Here is a regular expression for testing at most max: "
+          + "<span style=\"color: forestgreen\">"
+          + escapeHTML(at_most_max_regexp)
+          + "</span>"
+        );
+        document.getElementById("less_than_max").innerHTML = (
+          "Here is a regular expression for testing less than max: "
+          + "<span style=\"color: forestgreen\">"
+          + escapeHTML(less_than_max_regexp)
+          + "</span>"
+        );
+
+        regular_expression_string += (
+          "(?=" + at_most_max_regexp + ")"
         );
         if(parameters.is_max_excluded){
           regular_expression_string += (
