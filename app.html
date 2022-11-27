@@ -96,7 +96,7 @@
       <label for="step">
         Step
         (optional, it will default to arbitrary precision and not 1):
-        <span style="color: crimson">Not working</span>
+        <span style="color: crimson">Not fully working, limited to power of your base (10)</span>
       </label>
       <input
         type="text"
@@ -845,6 +845,17 @@
           + "<br>"
         );
       }
+      if(
+        parameters.step.length === 1
+        && parameters.step[0] === zero_digit
+      ){
+        error_message += (
+          "You gave a zero step," +
+          " but it does not mean epsilon step." +
+          " It should stay empty instead.\n"
+          + "<br>"
+        );
+      }
     }
 
 
@@ -1510,7 +1521,7 @@
               result_regexp += ".*";
             }
           }
-          else if(
+          if(
             number_of_digits_before_decimal_separator === 0
             && i < some_number_array.length - 1
           ){
@@ -1648,7 +1659,7 @@
               result_regexp += ".*";
             }
           }
-          else if(
+          if(
             number_of_digits_before_decimal_separator === 0
             && i < some_number_array.length - 1
           ){
@@ -1866,6 +1877,61 @@
         if(parameters.is_max_excluded){
           regular_expression_string += (
             "(?!" + max_equals_regexp + ")"
+          );
+        }
+      }
+
+      if(parameters.step !== ""){
+        let number_of_unit_digits = 0;
+        let number_of_other_positive_digits = 0;
+        let has_a_decimal_separator = false;
+        for(let digit of parameters.step){
+          if(digit === unit_digit){
+            ++number_of_unit_digits;
+          }
+          else if (positive_digits.includes(digit)){
+            ++number_of_other_positive_digits;
+          }
+          else if(parameters.decimal_separators.includes(digit)){
+            has_a_decimal_separator = true;
+          }
+        }
+        if(
+          number_of_other_positive_digits === 0
+          && number_of_unit_digits === 1
+        ){
+          if(!has_a_decimal_separator) {
+            regular_expression_string += (
+              "(?!.*"
+              + any_decimal_separator_regexp
+              + ".*"
+              + any_positive_digit_regexp
+              + ")"
+            );
+            if(parameters.step.length > 1){
+              regular_expression_string += (
+                "(?=.*"
+                  // at least this number of zeros at the end
+                  + zero_digit_regexp
+                  + "{" + (parameters.step.length - 1) + "}"
+                  + "($|" + any_decimal_separator_regexp + ")"
+                + ")"
+              );
+            }
+          }
+          else{
+            regular_expression_string += (
+              "(?!.*" + any_decimal_separator_regexp
+              + ".{" + (parameters.step.length - 2) + ",}"
+              + any_positive_digit_regexp
+              + ")"
+            );
+          }
+        }
+        else{
+          error_message += (
+            "This value of step is not currently supported, sorry.\n"
+            + "<br>"
           );
         }
       }
