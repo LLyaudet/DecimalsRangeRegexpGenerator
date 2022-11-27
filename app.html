@@ -96,7 +96,9 @@
       <label for="step">
         Step
         (optional, it will default to arbitrary precision and not 1):
-        <span style="color: crimson">Not fully working, limited to power of your base (10)</span>
+        <span style="color: crimson">
+          Not fully working, limited to power of your base (10)
+        </span>
       </label>
       <input
         type="text"
@@ -183,6 +185,18 @@
         title="This input has the following pattern: [1-9]\d*"
         id="max_number_of_digits_after_decimal_separator"
         name="max_number_of_digits_after_decimal_separator"
+      >
+    </div>
+    <div>
+      <label for="min_number_of_digits_after_decimal_separator_or_no">
+        Do not apply min number of digits after decimal part
+        if there is no decimal part:
+      </label>
+      <input
+        type="checkbox"
+        value="1"
+        id="min_number_of_digits_after_decimal_separator_or_no"
+        name="min_number_of_digits_after_decimal_separator_or_no"
       >
     </div>
     <div>
@@ -469,8 +483,9 @@
       max_number_of_digits_before_decimal_separator: null,
       min_number_of_digits_after_decimal_separator: null,
       max_number_of_digits_after_decimal_separator: null,
-      min_number_of_digits: "",
-      max_number_of_digits: "",
+      min_number_of_digits_after_decimal_separator_or_no: false,
+      min_number_of_digits: null,
+      max_number_of_digits: null,
       allow_zero_with_minus: false,
       allow_zero_with_plus: false,
       allow_positive_number_with_plus: false,
@@ -561,6 +576,9 @@
     set_positive_integer_parameter_in_form(
       "max_number_of_digits_after_decimal_separator"
     );
+    set_checkbox_parameter_in_form(
+      "min_number_of_digits_after_decimal_separator_or_no"
+    );
     set_positive_integer_parameter_in_form("min_number_of_digits");
     set_positive_integer_parameter_in_form("max_number_of_digits");
     set_checkbox_parameter_in_form("allow_zero_with_minus");
@@ -592,9 +610,10 @@
       achievement_unlocked();
     }
 
+
     function explode_and_check_unicity(
       parameter_name,
-      some_error_message
+      some_error_message,
     ){
       let some_array = Array.from(parameters[parameter_name]);
       let unique_array = [... new Set(some_array)];
@@ -603,6 +622,8 @@
       }
       parameters[parameter_name] = unique_array;
     }
+
+
     explode_and_check_unicity("digits", "You have repeated digits.");
     explode_and_check_unicity(
       "decimal_separators",
@@ -665,7 +686,7 @@
       }
       if(parameters.plus_signs.includes(minus_sign)){
         error_message += (
-          "You gave a minus sign that is a plus_sign"
+          "You gave a minus sign that is a plus sign"
           + " (\"" + escapeHTML(minus_sign) + "\").\n"
           + "<br>"
         );
@@ -810,13 +831,14 @@
           digits_array_result,
         );
       }
-      if(digits_array_result.length === 0
+      if(
+        digits_array_result.length === 0
         || (
           digits_array_result.length === 1
           && parameters.minus_signs.includes(digits_array_result[0])
         )
       ){
-        digits_array_result = [zero_digit]
+        digits_array_result = [zero_digit];
       }
       if(debug){
         console.log(
@@ -839,22 +861,24 @@
       if(parameters.step !== ""){
         parameters.step = canonize_number(parameters.step, "step");
       }
-      if(sign_signs.includes(parameters.step[0])){
-        error_message += (
-          "You gave a step with sign.\n"
-          + "<br>"
-        );
-      }
-      if(
-        parameters.step.length === 1
-        && parameters.step[0] === zero_digit
-      ){
-        error_message += (
-          "You gave a zero step," +
-          " but it does not mean epsilon step." +
-          " It should stay empty instead.\n"
-          + "<br>"
-        );
+      if(parameters.step !== null){
+        if(sign_signs.includes(parameters.step[0])){
+          error_message += (
+            "You gave a step with sign.\n"
+            + "<br>"
+          );
+        }
+        if(
+          parameters.step.length === 1
+          && parameters.step[0] === zero_digit
+        ){
+          error_message += (
+            "You gave a zero step," +
+            " but it does not mean epsilon step." +
+            " It should stay empty instead.\n"
+            + "<br>"
+          );
+        }
       }
     }
 
@@ -980,7 +1004,9 @@
       some_array = shrink_array_of_characters(some_array);
       // We must put "-" at the end.
       let index = some_array.indexOf("-");
-      if(index >= -1){
+      if(index > -1){
+        // It does not bug with >= -1;
+        // but the reason lies in splice function.
         some_array.push(some_array.splice(index, 1)[0]);
       }
 
@@ -1028,8 +1054,10 @@
 
     if(error_message === ""){
       // We compute the building blocks for the regular expression.
-      let any_sign_regexp = compute_regexp_for_any_character_in_array(
-        sign_signs
+      let any_sign_regexp = (
+        compute_regexp_for_any_character_in_array(
+          sign_signs
+        )
       );
       let any_digit_regexp = (
         compute_regexp_for_any_character_in_array(
@@ -1082,7 +1110,8 @@
         + escapeHTML(is_a_number_regexp)
         + "</span>"
         + "<br>"
-        + "But read on to see the other constraints you must add to it."
+        + "But read on to see the other constraints"
+        + " you must add to it."
       );
       let regular_expression_string = "";
       let repeat_before = "+";
@@ -1111,16 +1140,27 @@
       }
       // bare requirement with positive look-ahead
       let bare_requirement_as_positive_look_ahead = false;
+      let enforce_decimal_part = false;
+      if(
+        parameters.min_number_of_digits_after_decimal_separator
+        !== null
+        && parameters.min_number_of_digits_after_decimal_separator
+        > 0
+        &&
+        !parameters.min_number_of_digits_after_decimal_separator_or_no
+      ){
+        enforce_decimal_part = true;
+      }
       let bare_requirement = (
         // "(?=" +
         any_sign_regexp + "?" // It may start with a sign
         //+ any_digit_regexp + "+" // Followed by some digits
         + any_digit_regexp + repeat_before
-        + "("
+        + (enforce_decimal_part ? "" : "(")
           + any_decimal_separator_regexp
           // + any_digit_regexp + "+"
           + any_digit_regexp + repeat_after
-          + ")?" // Then maybe a decimal part
+          + (enforce_decimal_part ? "" : ")?")
         // + "$)" // We want all the string.
       );
       if(bare_requirement_as_positive_look_ahead){
@@ -1193,19 +1233,12 @@
         );
       }
       if(!parameters.allow_positive_number_with_plus){
-        // No zero with plus with negative look-ahead
+        // No positive number with plus with negative look-ahead
         regular_expression_string += (
           "(?!"
-          //We do a positive look-ahead inside a negative look-ahead,
-          //to check that the number is indeed positive.
-          + "(?=.*" + any_positive_digit_regexp + ")"
           + plus_sign_regexp
-          + any_digit_regexp + "+"
-          + "("
-            + any_decimal_separator_regexp
-            + any_digit_regexp + "+"
-            + ")?" // Then maybe a decimal part
-          + "$)" // We want all the string.
+          + ".*" + any_positive_digit_regexp
+          + ")"
         );
       }
 
@@ -1409,7 +1442,7 @@
                   + "}"
                   : ""
                 )
-              )
+              );
             }
             // We can always add digits after.
             result_regexp += ".*";
@@ -1581,7 +1614,7 @@
                   + ")?"
               + "|" // Or a negative number
                 + minus_sign_regexp
-                + ".*" + any_positive_digit_regexp + ".*"
+                + ".*" // + any_positive_digit_regexp + ".*"
               + ")$"
             )
             return result_regexp;
@@ -1762,7 +1795,7 @@
                   + "}"
                   : ""
                 )
-              )
+              );
             }
             // We can always add digits after.
             result_regexp += ".*";
@@ -1889,7 +1922,7 @@
           if(digit === unit_digit){
             ++number_of_unit_digits;
           }
-          else if (positive_digits.includes(digit)){
+          else if(positive_digits.includes(digit)){
             ++number_of_other_positive_digits;
           }
           else if(parameters.decimal_separators.includes(digit)){
