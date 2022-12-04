@@ -1287,11 +1287,10 @@
                 any_digit_regexp,
                 repeat_without_decimal_separator,
               )
-              + any_digit_regexp +
             + "|"
               + "(?=.*" + any_decimal_separator_regexp + ")"
               + get_regexp_with_repeat(
-                any_digit_regexp,
+                any_digit_or_decimal_separator_regexp,
                 repeat_with_decimal_separator,
               )
             + ")"
