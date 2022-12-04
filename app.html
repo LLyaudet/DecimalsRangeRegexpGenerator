@@ -142,8 +142,8 @@
       <input
         type="text"
         inputmode="numeric"
-        pattern="[1-9]\d*"
-        title="This input has the following pattern: [1-9]\d*"
+        pattern="\d*"
+        title="This input has the following pattern: \d*"
         id="min_number_of_digits_before_decimal_separator"
         name="min_number_of_digits_before_decimal_separator"
       >
@@ -155,8 +155,8 @@
       <input
         type="text"
         inputmode="numeric"
-        pattern="[1-9]\d*"
-        title="This input has the following pattern: [1-9]\d*"
+        pattern="\d*"
+        title="This input has the following pattern: \d*"
         id="max_number_of_digits_before_decimal_separator"
         name="max_number_of_digits_before_decimal_separator"
       >
@@ -168,8 +168,8 @@
       <input
         type="text"
         inputmode="numeric"
-        pattern="[1-9]\d*"
-        title="This input has the following pattern: [1-9]\d*"
+        pattern="\d*"
+        title="This input has the following pattern: \d*"
         id="min_number_of_digits_after_decimal_separator"
         name="min_number_of_digits_after_decimal_separator"
       >
@@ -181,8 +181,8 @@
       <input
         type="text"
         inputmode="numeric"
-        pattern="[1-9]\d*"
-        title="This input has the following pattern: [1-9]\d*"
+        pattern="\d*"
+        title="This input has the following pattern: \d*"
         id="max_number_of_digits_after_decimal_separator"
         name="max_number_of_digits_after_decimal_separator"
       >
@@ -206,8 +206,8 @@
       <input
         type="text"
         inputmode="numeric"
-        pattern="[1-9]\d*"
-        title="This input has the following pattern: [1-9]\d*"
+        pattern="\d*"
+        title="This input has the following pattern: \d*"
         id="min_number_of_digits"
         name="min_number_of_digits"
       >
@@ -219,8 +219,8 @@
       <input
         type="text"
         inputmode="numeric"
-        pattern="[1-9]\d*"
-        title="This input has the following pattern: [1-9]\d*"
+        pattern="\d*"
+        title="This input has the following pattern: \d*"
         id="max_number_of_digits"
         name="max_number_of_digits"
       >
@@ -1036,19 +1036,36 @@
       // At least one of min and max must not be null.
       let repeat = "{";
       if(min === max){
+        if(max === 0){
+          return "no";
+        }
         repeat += min;
       }
       else if(min === null){
+        if(max === 0){
+          return "no";
+        }
         repeat += "0," + max;
       }
       else if(max === null){
         repeat += min + ",";
       }
       else {
+        if(min > max || max === 0){
+          return "no";
+        }
         repeat += min + "," + max;
       }
       repeat += "}";
       return repeat;
+    }
+
+
+    function get_regexp_with_repeat(regexp, repeat){
+      if(repeat === "no"){
+        return "";
+      }
+      return regexp + repeat;
     }
 
 
@@ -1155,11 +1172,11 @@
         // "(?=" +
         any_sign_regexp + "?" // It may start with a sign
         //+ any_digit_regexp + "+" // Followed by some digits
-        + any_digit_regexp + repeat_before
+        + get_regexp_with_repeat(any_digit_regexp, repeat_before)
         + (enforce_decimal_part ? "" : "(")
           + any_decimal_separator_regexp
           // + any_digit_regexp + "+"
-          + any_digit_regexp + repeat_after
+          + get_regexp_with_repeat(any_digit_regexp, repeat_after)
           + (enforce_decimal_part ? "" : ")?")
         // + "$)" // We want all the string.
       );
@@ -1187,7 +1204,7 @@
           regular_expression_string += (
             "(?!"
             + any_sign_regexp + "?" // It may start with a sign
-            + any_digit_regexp + "+" // Followed by some digits
+            + any_digit_regexp + "*" // Followed by some digits
             + any_decimal_separator_regexp
             + any_digit_regexp + "*"
             + zero_digit_regexp
@@ -1211,10 +1228,10 @@
         regular_expression_string += (
           "(?!"
           + minus_sign_regexp
-          + zero_digit_regexp + "+"
+          + zero_digit_regexp + "*"
           + "("
             + any_decimal_separator_regexp
-            + zero_digit_regexp + "+"
+            + zero_digit_regexp + "*"
             + ")?" // Then maybe a decimal part
           + "$)" // We want all the string.
         );
@@ -1224,10 +1241,10 @@
         regular_expression_string += (
           "(?!"
           + plus_sign_regexp
-          + zero_digit_regexp + "+"
+          + zero_digit_regexp + "*"
           + "("
             + any_decimal_separator_regexp
-            + zero_digit_regexp + "+"
+            + zero_digit_regexp + "*"
             + ")?" // Then maybe a decimal part
           + "$)" // We want all the string.
         );
@@ -1266,11 +1283,17 @@
           "(?="
           + any_sign_regexp + "?" // It may start with a sign
           + "("
-              + any_digit_regexp + repeat_without_decimal_separator
+              + get_regexp_with_repeat(
+                any_digit_regexp,
+                repeat_without_decimal_separator,
+              )
+              + any_digit_regexp +
             + "|"
               + "(?=.*" + any_decimal_separator_regexp + ")"
-              + any_digit_or_decimal_separator_regexp
-              + repeat_with_decimal_separator
+              + get_regexp_with_repeat(
+                any_digit_regexp,
+                repeat_with_decimal_separator,
+              )
             + ")"
           + "$)" // We want all the string.
         );
@@ -1285,10 +1308,10 @@
         ){
           return (
             any_sign_regexp + "?"
-            + zero_digit_regexp + "+"
+            + zero_digit_regexp + "*"
             + "("
               + any_decimal_separator_regexp
-              + zero_digit_regexp + "+"
+              + zero_digit_regexp + "*"
             + ")?"
           );
         }
@@ -1374,10 +1397,10 @@
             result_regexp += (
               "(" // A zero
                 + any_sign_regexp + "?"
-                + zero_digit_regexp + "+"
+                + zero_digit_regexp + "*"
                 + "("
                   + any_decimal_separator_regexp
-                  + zero_digit_regexp + "+"
+                  + zero_digit_regexp + "*"
                   + ")?"
               + "|" // Or a positive number
                 + "(?!" + minus_sign_regexp + ")"
@@ -1607,10 +1630,10 @@
             result_regexp += (
               "(" // A zero
                 + any_sign_regexp + "?"
-                + zero_digit_regexp + "+"
+                + zero_digit_regexp + "*"
                 + "("
                   + any_decimal_separator_regexp
-                  + zero_digit_regexp + "+"
+                  + zero_digit_regexp + "*"
                   + ")?"
               + "|" // Or a negative number
                 + minus_sign_regexp
