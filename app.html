@@ -340,6 +340,65 @@
       </p>
     </div>
 
+    <h5>
+      More strange things
+    </h5>
+    <div>
+      <label for="allow_leading_decimal_separator">
+        <span style="text-decoration-line: line-through;">
+          Allow leading decimal separator (without any digit before):
+        </span>
+      </label>
+      <input
+        type="checkbox"
+        value="1"
+        id="allow_leading_decimal_separator"
+        name="allow_leading_decimal_separator"
+        disabled
+      >
+      <p>
+        You do not need it,
+        you can use "Min number of digits before decimal separator"
+        = 0
+        or empty and a max is given.
+        Note that when no min and no max are given, it defaults to
+        "+" or "{1,}"
+        that disallow leading decimal separator.
+        Because "+" is the most sensible choice for most use cases.
+      </p>
+    </div>
+    <div>
+      <label for="allow_trailing_decimal_separator">
+        <span style="text-decoration-line: line-through;">
+          Allow trailing decimal separator (without any digit after):
+        </span>
+      </label>
+      <input
+        type="checkbox"
+        value="1"
+        id="allow_trailing_decimal_separator"
+        name="allow_trailing_decimal_separator"
+        disabled
+      >
+      <p>
+        You do not need it,
+        you can use "Min number of digits after decimal separator"
+        = 0
+        or empty and a max is given.
+        Note that when no min and no max are given, it defaults to
+        "+" or "{1,}"
+        that disallow trailing decimal separator.
+        Because "+" is the most sensible choice for most use cases.
+        If you want to make sure that no trailing decimal separator
+        is allowed,
+        while specifying a max number of digits after decimal
+        use "Min number of digits after decimal separator" = 1
+        with or without
+        "Do not apply min number of digits after decimal part
+        if there is no decimal part".
+      </p>
+    </div>
+
     <hr>
 
     <button type="submit">Generate</button>

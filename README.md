@@ -50,3 +50,68 @@ you may read the following blog articles or webpages:
 - https://bradfrost.com/blog/post/you-probably-dont-need-input-typenumber/
 - https://stackoverflow.blog/2022/09/15/why-the-number-input-is-the-worst-input/
 - https://ux.stackexchange.com/questions/119870/input-type-number-or-input-type-text-for-entering-an-id
+
+## Current features
+
+So far, you can customize your regular expression with the following
+optional parameters:
+- a min value that can be an arbitrary decimal number,
+- a max value that can be an arbitrary decimal number,
+- allow or not leading zeros,
+- allow or not trailing zeros,
+- a min (positive or zero integer) number of digits before decimal
+separator,
+- a max (positive or zero integer) number of digits before decimal
+separator,
+- a min (positive or zero integer) number of digits after decimal
+separator,
+- a max (positive or zero integer) number of digits after decimal
+separator,
+- apply or not min number of digits after decimal part
+if there is no decimal part,
+- a min (positive or zero integer) number of digits
+before or after decimal separator,
+- a max (positive or zero integer) number of digits
+before or after decimal separator,
+- allow or not zero to be written with a minus sign,
+- allow or not zero to be written with a plus sign,
+- allow or not numbers above zero to be written with a plus sign.
+
+Moreover, you can change the number of digits (your base)
+and the unicode characters you use for:
+- digits,
+- decimal separators,
+- minus signs,
+- plus signs.
+
+With a number of digits different of ten,
+you are not dealing with decimal numbers anymore.
+You look at numbers that can be written
+as n/b^k where n and k are integers and b is your base
+(the number of digits you specified).
+Try the digits "0🐛" for "buginary" encoding ;).
+
+There is also a step parameter
+that works currently only for number
+that can be written as 1/b^k, like 100 or 0.01.
+
+If you are happy with GNU AGPL,
+I welcome contributions to this project
+for the following things to be done:
+- introduce spacing characters:
+    - an almost simple feature would be to allow spacing characters
+      anywhere in the string,
+    - a more complicated feature would be to control where spacing
+      characters can be
+      (before sign, between sign and first digit, after last digit,
+      as a thousand separator, etc.);
+- allow arbitrary step: for a number n/b^k, the regular expression
+  should be linear in n,
+  which means exponential in the writing of n;
+  hence, it would come with practical limits;
+  but it would still be nice to be able to have a step
+  like 0.25 working, for example;
+  one could start by developing it for numbers as n/1 = n.
+- other ideas you may have?
+
+Please, email me, if you are interested.
