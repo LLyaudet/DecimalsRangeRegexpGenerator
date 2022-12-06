@@ -341,6 +341,84 @@
     </div>
 
     <h5>
+      Spacing
+    </h5>
+    <div>
+      <label for="spaces_before_sign">
+        Spaces characters before a sign character:
+      </label>
+      <input
+        type="text"
+        inputmode="text"
+        id="spaces_before_sign"
+        name="spaces_before_sign"
+      >
+    </div>
+    <div>
+      <label for="min_number_of_spaces_before_sign">
+        Min number of spaces before a sign character:
+      </label>
+      <input
+        type="text"
+        inputmode="numeric"
+        pattern="0|[1-9]\d*"
+        title="This input has the following pattern: 0|[1-9]\d*"
+        id="min_number_of_spaces_before_sign"
+        name="min_number_of_spaces_before_sign"
+      >
+    </div>
+    <div>
+      <label for="max_number_of_spaces_before_sign">
+        Max number of spaces before a sign character:
+      </label>
+      <input
+        type="text"
+        inputmode="numeric"
+        pattern="0|[1-9]\d*"
+        title="This input has the following pattern: 0|[1-9]\d*"
+        id="max_number_of_spaces_before_sign"
+        name="max_number_of_spaces_before_sign"
+      >
+    </div>
+    <div>
+      <label for="spaces_before_number">
+        Spaces characters before a number without sign:
+      </label>
+      <input
+        type="text"
+        inputmode="text"
+        id="spaces_before_number"
+        name="spaces_before_number"
+      >
+    </div>
+    <div>
+      <label for="min_number_of_spaces_before_number">
+        Min number of spaces before a number without sign:
+      </label>
+      <input
+        type="text"
+        inputmode="numeric"
+        pattern="0|[1-9]\d*"
+        title="This input has the following pattern: 0|[1-9]\d*"
+        id="min_number_of_spaces_before_number"
+        name="min_number_of_spaces_before_number"
+      >
+    </div>
+    <div>
+      <label for="max_number_of_spaces_before_number">
+        Max number of spaces before a number without sign:
+      </label>
+      <input
+        type="text"
+        inputmode="numeric"
+        pattern="0|[1-9]\d*"
+        title="This input has the following pattern: 0|[1-9]\d*"
+        id="max_number_of_spaces_before_number"
+        name="max_number_of_spaces_before_number"
+      >
+    </div>
+
+    <h5>
       More strange things
     </h5>
     <div>
@@ -552,6 +630,12 @@
       decimal_separators: "",
       plus_signs: "",
       minus_signs: "",
+      spaces_before_sign: "",
+      min_number_of_spaces_before_sign: null,
+      max_number_of_spaces_before_sign: null,
+      spaces_before_number: "",
+      min_number_of_spaces_before_number: null,
+      max_number_of_spaces_before_number: null,
     };
     let error_message = "";
 
@@ -647,6 +731,12 @@
     set_text_parameter_in_form("decimal_separators");
     set_text_parameter_in_form("plus_signs");
     set_text_parameter_in_form("minus_signs");
+    set_text_parameter_in_form("spaces_before_sign");
+    set_positive_integer_parameter_in_form("min_number_of_spaces_before_sign");
+    set_positive_integer_parameter_in_form("max_number_of_spaces_before_sign");
+    set_text_parameter_in_form("spaces_before_number");
+    set_positive_integer_parameter_in_form("min_number_of_spaces_before_number");
+    set_positive_integer_parameter_in_form("max_number_of_spaces_before_number");
 
     let number_of_defaults = 0;
     if(parameters.digits === ""){
@@ -695,6 +785,14 @@
     explode_and_check_unicity(
       "minus_signs",
       "You have repeated minus signs.",
+    );
+    explode_and_check_unicity(
+      "spaces_before_sign",
+      "You have repeated spaces before sign characters.",
+    );
+    explode_and_check_unicity(
+      "spaces_before_number",
+      "You have repeated spaces before number without sign characters.",
     );
 
     if(parameters.digits.length < 2){
@@ -747,6 +845,73 @@
         error_message += (
           "You gave a minus sign that is a plus sign"
           + " (\"" + escapeHTML(minus_sign) + "\").\n"
+          + "<br>"
+        );
+      }
+    }
+    for(let space_character of parameters.spaces_before_sign){
+      if(parameters.digits.includes(space_character)){
+        error_message += (
+          "You gave a space character (before sign) that is a digit"
+          + " (\"" + escapeHTML(space_character) + "\").\n"
+          + "<br>"
+        );
+      }
+      if(parameters.decimal_separators.includes(space_character)){
+        error_message += (
+          "You gave a space character (before sign)"
+          + " that is a decimal separator"
+          + " (\"" + escapeHTML(space_character) + "\").\n"
+          + "<br>"
+        );
+      }
+      if(parameters.plus_signs.includes(space_character)){
+        error_message += (
+          "You gave a space character (before sign)"
+          + " that is a plus sign"
+          + " (\"" + escapeHTML(space_character) + "\").\n"
+          + "<br>"
+        );
+      }
+      if(parameters.minus_signs.includes(space_character)){
+        error_message += (
+          "You gave a space character (before sign)"
+          + " that is a minus sign"
+          + " (\"" + escapeHTML(space_character) + "\").\n"
+          + "<br>"
+        );
+      }
+    }
+    for(let space_character of parameters.spaces_before_number){
+      if(parameters.digits.includes(space_character)){
+        error_message += (
+          "You gave a space character (before number without sign)"
+          + " that is a digit"
+          + " (\"" + escapeHTML(space_character) + "\").\n"
+          + "<br>"
+        );
+      }
+      if(parameters.decimal_separators.includes(space_character)){
+        error_message += (
+          "You gave a space character (before number without sign)"
+          + " that is a decimal separator"
+          + " (\"" + escapeHTML(space_character) + "\").\n"
+          + "<br>"
+        );
+      }
+      if(parameters.plus_signs.includes(space_character)){
+        error_message += (
+          "You gave a space character (before number without sign)"
+          + " that is a plus sign"
+          + " (\"" + escapeHTML(space_character) + "\").\n"
+          + "<br>"
+        );
+      }
+      if(parameters.minus_signs.includes(space_character)){
+        error_message += (
+          "You gave a space character (before number without sign)"
+          + " that is a minus sign"
+          + " (\"" + escapeHTML(space_character) + "\").\n"
           + "<br>"
         );
       }
@@ -1107,6 +1272,12 @@
         repeat += "0," + max;
       }
       else if(max === null){
+        if(min === 0){
+          return "*";
+        }
+        if(min === 1){
+          return "+";
+        }
         repeat += min + ",";
       }
       else {
@@ -1122,6 +1293,9 @@
 
     function get_regexp_with_repeat(regexp, repeat){
       if(repeat === "no"){
+        return "";
+      }
+      if(regexp === ""){
         return "";
       }
       return regexp + repeat;
@@ -1170,6 +1344,22 @@
           [...parameters.digits, ...parameters.decimal_separators]
         )
       );
+      let any_space_before_sign_regexp = "";
+      if(parameters.spaces_before_sign.length > 0){
+        any_space_before_sign_regexp = (
+          compute_regexp_for_any_character_in_array(
+            parameters.spaces_before_sign
+          )
+        );
+      }
+      let any_space_before_number_regexp = "";
+      if(parameters.spaces_before_number.length > 0){
+        any_space_before_number_regexp = (
+          compute_regexp_for_any_character_in_array(
+            parameters.spaces_before_number
+          )
+        );
+      }
 
       let is_a_number_regexp = (
         any_sign_regexp + "?" // It may start with a sign
@@ -1190,6 +1380,50 @@
         + " you must add to it."
       );
       let regular_expression_string = "";
+      // We first add the spacing at the beginning.
+      let repeat_before_sign = "*";
+      let repeat_before_number = "*";
+      if(
+        parameters.min_number_of_spaces_before_sign !== null
+        || parameters.max_number_of_spaces_before_sign !== null
+      ){
+        repeat_before_sign = get_repeat_string(
+          parameters.min_number_of_spaces_before_sign,
+          parameters.max_number_of_spaces_before_sign,
+        );
+      }
+      if(
+        parameters.min_number_of_spaces_before_number !== null
+        || parameters.max_number_of_spaces_before_number !== null
+      ){
+        repeat_before_number = get_repeat_string(
+          parameters.min_number_of_spaces_before_number,
+          parameters.max_number_of_spaces_before_number,
+        );
+      }
+      let all_spaces_before_sign_regexp = get_regexp_with_repeat(
+        any_space_before_sign_regexp,
+        repeat_before_sign,
+      );
+      let all_spaces_before_number_regexp = get_regexp_with_repeat(
+        any_space_before_number_regexp,
+        repeat_before_number,
+      );
+      if(
+        all_spaces_before_sign_regexp !== ""
+        || all_spaces_before_number_regexp !== ""
+      ) {
+        regular_expression_string += (
+          "("
+            + all_spaces_before_sign_regexp
+            + "(?=" + any_sign_regexp + ")"
+          + "|"
+            + all_spaces_before_number_regexp
+            + "(?!" + any_sign_regexp + ")"
+          + ")"
+        );
+      }
+
       let repeat_before = "+";
       let repeat_after = "+";
       if(
