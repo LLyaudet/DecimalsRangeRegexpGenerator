@@ -46,10 +46,10 @@ instead.
 For a few reasons to replace input number
 with input text and a pattern,
 you may read the following blog articles or webpages:
-- https://technology.blog.gov.uk/2020/02/24/why-the-gov-uk-design-system-team-changed-the-input-type-for-numbers/
-- https://bradfrost.com/blog/post/you-probably-dont-need-input-typenumber/
-- https://stackoverflow.blog/2022/09/15/why-the-number-input-is-the-worst-input/
-- https://ux.stackexchange.com/questions/119870/input-type-number-or-input-type-text-for-entering-an-id
+- <https://technology.blog.gov.uk/2020/02/24/why-the-gov-uk-design-system-team-changed-the-input-type-for-numbers/>
+- <https://bradfrost.com/blog/post/you-probably-dont-need-input-typenumber/>
+- <https://stackoverflow.blog/2022/09/15/why-the-number-input-is-the-worst-input/>
+- <https://ux.stackexchange.com/questions/119870/input-type-number-or-input-type-text-for-entering-an-id>
 
 ## Current features
 
@@ -94,6 +94,13 @@ Try the digits "0🐛" for "buginary" encoding ;).
 There is also a step parameter
 that works currently only for number
 that can be written as 1/b^k, like 100 or 0.01.
+
+app.html is hosted there on my website:
+<https://lyaudet.eu/laurent/DecimalsRangeRegexpGenerator/app.html>
+Since it is only static HTML and JS,
+it should handle many users :).
+Otherwise, you can just save the file on your computer,
+and open it in your web-browser to use it.
 
 If you are happy with GNU AGPL,
 I welcome contributions to this project
