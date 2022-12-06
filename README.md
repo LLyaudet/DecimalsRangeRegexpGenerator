@@ -46,6 +46,7 @@ instead.
 For a few reasons to replace input number
 with input text and a pattern,
 you may read the following blog articles or webpages:
+
 - <https://technology.blog.gov.uk/2020/02/24/why-the-gov-uk-design-system-team-changed-the-input-type-for-numbers/>
 - <https://bradfrost.com/blog/post/you-probably-dont-need-input-typenumber/>
 - <https://stackoverflow.blog/2022/09/15/why-the-number-input-is-the-worst-input/>
@@ -55,6 +56,7 @@ you may read the following blog articles or webpages:
 
 So far, you can customize your regular expression with the following
 optional parameters:
+
 - a min value that can be an arbitrary decimal number,
 - a max value that can be an arbitrary decimal number,
 - allow or not leading zeros,
@@ -79,6 +81,7 @@ before or after decimal separator,
 
 Moreover, you can change the number of digits (your base)
 and the unicode characters you use for:
+
 - digits,
 - decimal separators,
 - minus signs,
@@ -90,6 +93,15 @@ You look at numbers that can be written
 as n/b^k where n and k are integers and b is your base
 (the number of digits you specified).
 Try the digits "0🐛" for "buginary" encoding ;).
+
+Spacing is partially supported with:
+
+- spaces characters allowed before a sign character
+- a min (positive or zero integer) number of spaces before the sign,
+- a max (positive or zero integer) number of spaces before the sign,
+- spaces characters allowed before a number without sign,
+- a min (positive or zero integer) number of spaces before the number,
+- a max (positive or zero integer) number of spaces before the number,
 
 There is also a step parameter
 that works currently only for number
@@ -105,6 +117,7 @@ and open it in your web-browser to use it.
 If you are happy with GNU AGPL,
 I welcome contributions to this project
 for the following things to be done:
+
 - introduce spacing characters:
     - an almost simple feature would be to allow spacing characters
       anywhere in the string,
