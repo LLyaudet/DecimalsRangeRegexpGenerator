@@ -102,6 +102,12 @@ Spacing is partially supported with:
 - spaces characters allowed before a number without sign,
 - a min (positive or zero integer) number of spaces before the number,
 - a max (positive or zero integer) number of spaces before the number,
+- spaces characters allowed between a sign and a number
+(you may use non-breakable space here for example),
+- a min (positive or zero integer) number of spaces
+between a sign and a number,
+- a max (positive or zero integer) number of spaces
+between a sign and a number,
 
 There is also a step parameter
 that works currently only for number

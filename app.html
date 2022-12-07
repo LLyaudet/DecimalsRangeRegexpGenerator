@@ -417,6 +417,47 @@
         name="max_number_of_spaces_before_number"
       >
     </div>
+    <div>
+      <label for="spaces_between_sign_and_number">
+        Spaces characters between a sign and number:
+      </label>
+      <input
+        type="text"
+        inputmode="text"
+        id="spaces_between_sign_and_number"
+        name="spaces_between_sign_and_number"
+      >
+      <p>
+        You may try exactly one non-breakable space here,
+        for example.
+      </p>
+    </div>
+    <div>
+      <label for="min_number_of_spaces_between_sign_and_number">
+        Min number of spaces between a sign and number:
+      </label>
+      <input
+        type="text"
+        inputmode="numeric"
+        pattern="0|[1-9]\d*"
+        title="This input has the following pattern: 0|[1-9]\d*"
+        id="min_number_of_spaces_between_sign_and_number"
+        name="min_number_of_spaces_between_sign_and_number"
+      >
+    </div>
+    <div>
+      <label for="max_number_of_spaces_between_sign_and_number">
+        Max number of spaces between a sign and number:
+      </label>
+      <input
+        type="text"
+        inputmode="numeric"
+        pattern="0|[1-9]\d*"
+        title="This input has the following pattern: 0|[1-9]\d*"
+        id="max_number_of_spaces_between_sign_and_number"
+        name="max_number_of_spaces_between_sign_and_number"
+      >
+    </div>
 
     <h5>
       More strange things
@@ -636,6 +677,9 @@
       spaces_before_number: "",
       min_number_of_spaces_before_number: null,
       max_number_of_spaces_before_number: null,
+      spaces_between_sign_and_number: "",
+      min_number_of_spaces_between_sign_and_number: null,
+      max_number_of_spaces_between_sign_and_number: null,
     };
     let error_message = "";
 
@@ -732,11 +776,26 @@
     set_text_parameter_in_form("plus_signs");
     set_text_parameter_in_form("minus_signs");
     set_text_parameter_in_form("spaces_before_sign");
-    set_positive_integer_parameter_in_form("min_number_of_spaces_before_sign");
-    set_positive_integer_parameter_in_form("max_number_of_spaces_before_sign");
+    set_positive_integer_parameter_in_form(
+      "min_number_of_spaces_before_sign"
+    );
+    set_positive_integer_parameter_in_form(
+      "max_number_of_spaces_before_sign"
+    );
     set_text_parameter_in_form("spaces_before_number");
-    set_positive_integer_parameter_in_form("min_number_of_spaces_before_number");
-    set_positive_integer_parameter_in_form("max_number_of_spaces_before_number");
+    set_positive_integer_parameter_in_form(
+      "min_number_of_spaces_before_number"
+    );
+    set_positive_integer_parameter_in_form(
+      "max_number_of_spaces_before_number"
+    );
+    set_text_parameter_in_form("spaces_between_sign_and_number");
+    set_positive_integer_parameter_in_form(
+      "min_number_of_spaces_between_sign_and_number"
+    );
+    set_positive_integer_parameter_in_form(
+      "max_number_of_spaces_between_sign_and_number"
+    );
 
     let number_of_defaults = 0;
     if(parameters.digits === ""){
@@ -792,7 +851,12 @@
     );
     explode_and_check_unicity(
       "spaces_before_number",
-      "You have repeated spaces before number without sign characters.",
+      "You have repeated spaces before number"
+      + " without sign characters.",
+    );
+    explode_and_check_unicity(
+      "spaces_between_sign_and_number",
+      "You have repeated spaces between sign and number characters.",
     );
 
     if(parameters.digits.length < 2){
@@ -910,6 +974,42 @@
       if(parameters.minus_signs.includes(space_character)){
         error_message += (
           "You gave a space character (before number without sign)"
+          + " that is a minus sign"
+          + " (\"" + escapeHTML(space_character) + "\").\n"
+          + "<br>"
+        );
+      }
+    }
+    for(
+      let space_character of parameters.spaces_between_sign_and_number
+    ){
+      if(parameters.digits.includes(space_character)){
+        error_message += (
+          "You gave a space character (between sign and number)"
+          + " that is a digit"
+          + " (\"" + escapeHTML(space_character) + "\").\n"
+          + "<br>"
+        );
+      }
+      if(parameters.decimal_separators.includes(space_character)){
+        error_message += (
+          "You gave a space character (between sign and number)"
+          + " that is a decimal separator"
+          + " (\"" + escapeHTML(space_character) + "\").\n"
+          + "<br>"
+        );
+      }
+      if(parameters.plus_signs.includes(space_character)){
+        error_message += (
+          "You gave a space character (between sign and number)"
+          + " that is a plus sign"
+          + " (\"" + escapeHTML(space_character) + "\").\n"
+          + "<br>"
+        );
+      }
+      if(parameters.minus_signs.includes(space_character)){
+        error_message += (
+          "You gave a space character (between sign and number)"
           + " that is a minus sign"
           + " (\"" + escapeHTML(space_character) + "\").\n"
           + "<br>"
@@ -1263,6 +1363,9 @@
         if(max === 0){
           return "no";
         }
+        if(max === 1){
+          return ""; // No need to repeat
+        }
         repeat += min;
       }
       else if(min === null){
@@ -1360,6 +1463,14 @@
           )
         );
       }
+      let any_space_between_sign_and_number_regexp = "";
+      if(parameters.spaces_between_sign_and_number.length > 0){
+        any_space_between_sign_and_number_regexp = (
+          compute_regexp_for_any_character_in_array(
+            parameters.spaces_between_sign_and_number
+          )
+        );
+      }
 
       let is_a_number_regexp = (
         any_sign_regexp + "?" // It may start with a sign
@@ -1424,6 +1535,64 @@
         );
       }
 
+      let repeat_between_sign_and_number = "*";
+      if(
+        parameters.min_number_of_spaces_between_sign_and_number
+        !== null
+        || parameters.max_number_of_spaces_between_sign_and_number
+        !== null
+      ){
+        repeat_between_sign_and_number = get_repeat_string(
+          parameters.min_number_of_spaces_between_sign_and_number,
+          parameters.max_number_of_spaces_between_sign_and_number,
+        );
+      }
+      let all_spaces_between_sign_and_number_regexp = (
+        get_regexp_with_repeat(
+          any_space_between_sign_and_number_regexp,
+          repeat_between_sign_and_number,
+        )
+      );
+      let any_sign_and_spaces_regexp = (
+        any_sign_regexp
+        + all_spaces_between_sign_and_number_regexp
+      );
+      let plus_sign_and_spaces_regexp = (
+        plus_sign_regexp
+        + all_spaces_between_sign_and_number_regexp
+      );
+      let minus_sign_and_spaces_regexp = (
+        minus_sign_regexp
+        + all_spaces_between_sign_and_number_regexp
+      );
+      // Enclosed means you can add a repeat string to it.
+      let enclosed_any_sign_and_spaces_regexp;
+      let enclosed_plus_sign_and_spaces_regexp;
+      let enclosed_minus_sign_and_spaces_regexp;
+      if(all_spaces_between_sign_and_number_regexp === ""){
+        enclosed_any_sign_and_spaces_regexp = (
+          any_sign_and_spaces_regexp
+        );
+        enclosed_plus_sign_and_spaces_regexp = (
+          plus_sign_and_spaces_regexp
+        );
+        enclosed_minus_sign_and_spaces_regexp = (
+          minus_sign_and_spaces_regexp
+        );
+      }
+      else{
+        // "(?:"...")" for non-capturing group.
+        enclosed_any_sign_and_spaces_regexp = (
+          "(?:" + any_sign_and_spaces_regexp + ")"
+        );
+        enclosed_minus_sign_and_spaces_regexp = (
+          "(?:" + minus_sign_and_spaces_regexp + ")"
+        );
+        enclosed_minus_sign_and_spaces_regexp = (
+          "(?:" + minus_sign_and_spaces_regexp + ")"
+        );
+      }
+
       let repeat_before = "+";
       let repeat_after = "+";
       if(
@@ -1463,7 +1632,9 @@
       }
       let bare_requirement = (
         // "(?=" +
-        any_sign_regexp + "?" // It may start with a sign
+        // any_sign_regexp + "?" // It may start with a sign
+        // It may start with a sign and spacing
+        enclosed_any_sign_and_spaces_regexp + "?"
         //+ any_digit_regexp + "+" // Followed by some digits
         + get_regexp_with_repeat(any_digit_regexp, repeat_before)
         + (enforce_decimal_part ? "" : "(")
@@ -1484,7 +1655,8 @@
         // No leading zero with negative look-ahead
         regular_expression_string += (
           "(?!"
-          + any_sign_regexp + "?" // It may start with a sign
+          // It may start with a sign and spacing
+          + enclosed_any_sign_and_spaces_regexp + "?"
           + zero_digit_regexp
           + any_digit_regexp
           + ")"
@@ -1496,7 +1668,8 @@
         if(longer){
           regular_expression_string += (
             "(?!"
-            + any_sign_regexp + "?" // It may start with a sign
+            // It may start with a sign and spacing
+            + enclosed_any_sign_and_spaces_regexp + "?"
             + any_digit_regexp + "*" // Followed by some digits
             + any_decimal_separator_regexp
             + any_digit_regexp + "*"
@@ -1520,7 +1693,7 @@
         // No zero with minus with negative look-ahead
         regular_expression_string += (
           "(?!"
-          + minus_sign_regexp
+          + minus_sign_and_spaces_regexp
           + zero_digit_regexp + "*"
           + "("
             + any_decimal_separator_regexp
@@ -1533,7 +1706,7 @@
         // No zero with plus with negative look-ahead
         regular_expression_string += (
           "(?!"
-          + plus_sign_regexp
+          + plus_sign_and_spaces_regexp
           + zero_digit_regexp + "*"
           + "("
             + any_decimal_separator_regexp
@@ -1574,7 +1747,8 @@
         );
         regular_expression_string += (
           "(?="
-          + any_sign_regexp + "?" // It may start with a sign
+          // It may start with a sign and spacing
+          + enclosed_any_sign_and_spaces_regexp + "?"
           + "("
               + get_regexp_with_repeat(
                 any_digit_regexp,
@@ -1599,7 +1773,7 @@
           && some_number_array[0] === zero_digit
         ){
           return (
-            any_sign_regexp + "?"
+            enclosed_any_sign_and_spaces_regexp + "?"
             + zero_digit_regexp + "*"
             + "("
               + any_decimal_separator_regexp
@@ -1610,11 +1784,11 @@
         let equals_regexp = "";
         let start_at = 0;
         if(parameters.minus_signs.includes(some_number_array[0])){
-          equals_regexp += minus_sign_regexp;
+          equals_regexp += minus_sign_and_spaces_regexp;
           start_at = 1;
         }
         else{
-          equals_regexp += plus_sign_regexp + "?";
+          equals_regexp += enclosed_plus_sign_and_spaces_regexp + "?";
         }
         equals_regexp += zero_digit_regexp + "*";
         for(let i = start_at; i < some_number_array.length; ++i){
@@ -1688,7 +1862,7 @@
             // At least zero
             result_regexp += (
               "(" // A zero
-                + any_sign_regexp + "?"
+                + enclosed_any_sign_and_spaces_regexp + "?"
                 + zero_digit_regexp + "*"
                 + "("
                   + any_decimal_separator_regexp
@@ -1696,7 +1870,7 @@
                   + ")?"
               + "|" // Or a positive number
                 + "(?!" + minus_sign_regexp + ")"
-                + ".*" + any_positive_digit_regexp + ".*"
+                + ".*" // + any_positive_digit_regexp + ".*"
               + ")$"
             )
             return result_regexp;
@@ -1718,7 +1892,7 @@
           }
         }
         let common_prefix = (
-          plus_sign_regexp + "?"
+          enclosed_plus_sign_and_spaces_regexp + "?"
           + any_digit_regexp + "*"
         );
         // A number with more digits before decimal separator
@@ -1821,7 +1995,7 @@
             + ".*"
         );
         let common_prefix = (
-          minus_sign_regexp
+          minus_sign_and_spaces_regexp
           + zero_digit_regexp + "*"
         );
         // A number with fewer digits before decimal separator
@@ -1921,7 +2095,7 @@
             // At most zero
             result_regexp += (
               "(" // A zero
-                + any_sign_regexp + "?"
+                + enclosed_any_sign_and_spaces_regexp + "?"
                 + zero_digit_regexp + "*"
                 + "("
                   + any_decimal_separator_regexp
@@ -1958,7 +2132,7 @@
         );
 
         let common_prefix = (
-          plus_sign_regexp + "?"
+          plus_sign_and_spaces_regexp + "?"
           + zero_digit_regexp + "*"
         );
         // A number with fewer digits before decimal separator
@@ -2071,7 +2245,7 @@
           }
         }
         let common_prefix = (
-          minus_sign_regexp
+          minus_sign_and_spaces_regexp
           + any_digit_regexp + "*"
         );
         // A number with more digits before decimal separator
