@@ -111,6 +111,26 @@ between a sign and a number,
 - spaces characters allowed after last_digit,
 - a min (positive or zero integer) number of spaces after last_digit,
 - a max (positive or zero integer) number of spaces after last_digit,
+- spaces characters between digits before decimal separator,
+- a min (positive or zero integer) number of
+spaces characters between digits before decimal separator,
+- a max (positive or zero integer) number of
+spaces characters between digits before decimal separator,
+- spaces characters between digit and decimal separator,
+- a min (positive or zero integer) number of
+spaces characters between digit and decimal separator,
+- a max (positive or zero integer) number of
+spaces characters between digit and decimal separator,
+- spaces characters between decimal separator and digit,
+- a min (positive or zero integer) number of
+spaces characters between decimal separator and digit,
+- a max (positive or zero integer) number of
+spaces characters between decimal separator and digit,
+- spaces characters between digits after decimal separator,
+- a min (positive or zero integer) number of
+spaces characters between digits after decimal separator,
+- a max (positive or zero integer) number of
+spaces characters between digits after decimal separator,
 
 There is also a step parameter
 that works currently only for number
