@@ -657,6 +657,36 @@
         name="max_number_of_spaces_inter_digits_after"
       >
     </div>
+    <div>
+      <label for="min_number_of_contiguous_digits">
+        Min number of contiguous digits:
+      </label>
+      <input
+        type="text"
+        inputmode="numeric"
+        pattern="[1-9]\d*"
+        title="This input has the following pattern: [1-9]\d*"
+        id="min_number_of_contiguous_digits"
+        name="min_number_of_contiguous_digits"
+      >
+    </div>
+    <div>
+      <label for="max_number_of_contiguous_digits">
+        Max number of contiguous digits:
+      </label>
+      <input
+        type="text"
+        inputmode="numeric"
+        pattern="[1-9]\d*"
+        title="This input has the following pattern: [1-9]\d*"
+        id="max_number_of_contiguous_digits"
+        name="max_number_of_contiguous_digits"
+      >
+      <p>
+        With both min and max at 3,
+        you can have spacing like thousands separators.
+      </p>
+    </div>
 
     <h5>
       More strange things
@@ -894,6 +924,8 @@
       spaces_inter_digits_after: "",
       min_number_of_spaces_inter_digits_after: null,
       max_number_of_spaces_inter_digits_after: null,
+      min_number_of_contiguous_digits: null,
+      max_number_of_contiguous_digits: null,
     };
     let error_message = "";
 
@@ -1048,6 +1080,12 @@
     );
     set_positive_integer_parameter_in_form(
       "max_number_of_spaces_inter_digits_after"
+    );
+    set_positive_integer_parameter_in_form(
+      "min_number_of_contiguous_digits"
+    );
+    set_positive_integer_parameter_in_form(
+      "max_number_of_contiguous_digits"
     );
 
 
@@ -3020,6 +3058,54 @@
             + "<br>"
           );
         }
+      }
+
+      if(
+        parameters.min_number_of_contiguous_digits !== null
+        && parameters.min_number_of_contiguous_digits > 1
+      ){
+        regular_expression_string += (
+          "(?!"
+            + ".*" + any_decimal_separator_regexp
+            + "(|.*" + any_space_intra_number_regexp + ")"
+            + get_regexp_with_repeat(
+              any_digit_regexp,
+              get_repeat_string(
+                1,
+                parameters.min_number_of_contiguous_digits - 1,
+              )
+            )
+            + any_space_intra_number_regexp + "+"
+            + any_digit_regexp
+          + "|"
+            + ".*"
+            + any_digit_regexp
+            + any_space_intra_number_regexp + "+"
+            + get_regexp_with_repeat(
+              any_digit_regexp,
+              get_repeat_string(
+                1,
+                parameters.min_number_of_contiguous_digits - 1,
+              )
+            )
+            + "(?!" + any_digit_regexp + ")"
+            + "(?<!" + any_decimal_separator_regexp + ".*)"
+          + ")"
+        );
+      }
+
+      if(parameters.max_number_of_contiguous_digits !== null){
+        regular_expression_string += (
+          "(?!.*"
+          + get_regexp_with_repeat(
+            any_digit_regexp,
+            get_repeat_string(
+              parameters.max_number_of_contiguous_digits + 1,
+              null
+            )
+          )
+          + ")"
+        );
       }
 
       // Negative or positive look-behind is not enough.

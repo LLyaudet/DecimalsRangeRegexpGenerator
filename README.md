@@ -94,7 +94,7 @@ as n/b^k where n and k are integers and b is your base
 (the number of digits you specified).
 Try the digits "0🐛" for "buginary" encoding ;).
 
-Spacing is partially supported with:
+Spacing is supported with:
 
 - spaces characters allowed before a sign character
 - a min (positive or zero integer) number of spaces before the sign,
@@ -131,6 +131,9 @@ spaces characters between decimal separator and digit,
 spaces characters between digits after decimal separator,
 - a max (positive or zero integer) number of
 spaces characters between digits after decimal separator,
+- a min (positive integer) number of contiguous digits,
+- a max (positive integer) number of contiguous digits,
+you can set both to 3 for thousands separators.
 
 There is also a step parameter
 that works currently only for number
@@ -147,13 +150,6 @@ If you are happy with GNU AGPL,
 I welcome contributions to this project
 for the following things to be done:
 
-- introduce spacing characters:
-    - an almost simple feature would be to allow spacing characters
-      anywhere in the string,
-    - a more complicated feature would be to control where spacing
-      characters can be
-      (before sign, between sign and first digit, after last digit,
-      as a thousand separator, etc.);
 - allow arbitrary step: for a number n/b^k, the regular expression
   should be linear in n,
   which means exponential in the writing of n;
@@ -161,6 +157,7 @@ for the following things to be done:
   but it would still be nice to be able to have a step
   like 0.25 working, for example;
   one could start by developing it for numbers as n/1 = n.
+- add some testing code and enhance UI;
 - other ideas you may have?
 
 Please, email me, if you are interested.
