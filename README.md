@@ -108,6 +108,9 @@ Spacing is partially supported with:
 between a sign and a number,
 - a max (positive or zero integer) number of spaces
 between a sign and a number,
+- spaces characters allowed after last_digit,
+- a min (positive or zero integer) number of spaces after last_digit,
+- a max (positive or zero integer) number of spaces after last_digit,
 
 There is also a step parameter
 that works currently only for number

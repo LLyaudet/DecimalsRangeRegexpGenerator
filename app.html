@@ -458,6 +458,43 @@
         name="max_number_of_spaces_between_sign_and_number"
       >
     </div>
+    <div>
+      <label for="spaces_after_last_digit">
+        Spaces characters after_last_digit:
+      </label>
+      <input
+        type="text"
+        inputmode="text"
+        id="spaces_after_last_digit"
+        name="spaces_after_last_digit"
+      >
+    </div>
+    <div>
+      <label for="min_number_of_spaces_after_last_digit">
+        Min number of spaces after last digit:
+      </label>
+      <input
+        type="text"
+        inputmode="numeric"
+        pattern="0|[1-9]\d*"
+        title="This input has the following pattern: 0|[1-9]\d*"
+        id="min_number_of_spaces_after_last_digit"
+        name="min_number_of_spaces_after_last_digit"
+      >
+    </div>
+    <div>
+      <label for="max_number_of_spaces_after_last_digit">
+        Max number of spaces after last digit:
+      </label>
+      <input
+        type="text"
+        inputmode="numeric"
+        pattern="0|[1-9]\d*"
+        title="This input has the following pattern: 0|[1-9]\d*"
+        id="max_number_of_spaces_after_last_digit"
+        name="max_number_of_spaces_after_last_digit"
+      >
+    </div>
 
     <h5>
       More strange things
@@ -680,6 +717,9 @@
       spaces_between_sign_and_number: "",
       min_number_of_spaces_between_sign_and_number: null,
       max_number_of_spaces_between_sign_and_number: null,
+      spaces_after_last_digit: "",
+      min_number_of_spaces_after_last_digit: null,
+      max_number_of_spaces_after_last_digit: null,
     };
     let error_message = "";
 
@@ -796,6 +836,14 @@
     set_positive_integer_parameter_in_form(
       "max_number_of_spaces_between_sign_and_number"
     );
+    set_text_parameter_in_form("spaces_after_last_digit");
+    set_positive_integer_parameter_in_form(
+      "min_number_of_spaces_after_last_digit"
+    );
+    set_positive_integer_parameter_in_form(
+      "max_number_of_spaces_after_last_digit"
+    );
+
 
     let number_of_defaults = 0;
     if(parameters.digits === ""){
@@ -847,16 +895,23 @@
     );
     explode_and_check_unicity(
       "spaces_before_sign",
-      "You have repeated spaces before sign characters.",
+      "You have repeated spaces characters"
+      + " (spaces before sign).",
     );
     explode_and_check_unicity(
       "spaces_before_number",
-      "You have repeated spaces before number"
-      + " without sign characters.",
+      "You have repeated spaces characters"
+      + " (spaces before number without sign).",
     );
     explode_and_check_unicity(
       "spaces_between_sign_and_number",
-      "You have repeated spaces between sign and number characters.",
+      "You have repeated spaces characters"
+      + " (spaces between sign and number).",
+    );
+    explode_and_check_unicity(
+      "spaces_after_last_digit",
+      "You have repeated spaces characters"
+      + " (spaces after last digit).",
     );
 
     if(parameters.digits.length < 2){
@@ -1010,6 +1065,42 @@
       if(parameters.minus_signs.includes(space_character)){
         error_message += (
           "You gave a space character (between sign and number)"
+          + " that is a minus sign"
+          + " (\"" + escapeHTML(space_character) + "\").\n"
+          + "<br>"
+        );
+      }
+    }
+    for(
+      let space_character of parameters.spaces_after_last_digit
+    ){
+      if(parameters.digits.includes(space_character)){
+        error_message += (
+          "You gave a space character (after last digit)"
+          + " that is a digit"
+          + " (\"" + escapeHTML(space_character) + "\").\n"
+          + "<br>"
+        );
+      }
+      if(parameters.decimal_separators.includes(space_character)){
+        error_message += (
+          "You gave a space character (after last digit)"
+          + " that is a decimal separator"
+          + " (\"" + escapeHTML(space_character) + "\").\n"
+          + "<br>"
+        );
+      }
+      if(parameters.plus_signs.includes(space_character)){
+        error_message += (
+          "You gave a space character (after last digit)"
+          + " that is a plus sign"
+          + " (\"" + escapeHTML(space_character) + "\").\n"
+          + "<br>"
+        );
+      }
+      if(parameters.minus_signs.includes(space_character)){
+        error_message += (
+          "You gave a space character (after last digit)"
           + " that is a minus sign"
           + " (\"" + escapeHTML(space_character) + "\").\n"
           + "<br>"
@@ -1471,6 +1562,14 @@
           )
         );
       }
+      let any_space_after_last_digit_regexp = "";
+      if(parameters.spaces_after_last_digit.length > 0){
+        any_space_after_last_digit_regexp = (
+          compute_regexp_for_any_character_in_array(
+            parameters.spaces_after_last_digit
+          )
+        );
+      }
 
       let is_a_number_regexp = (
         any_sign_regexp + "?" // It may start with a sign
@@ -1593,6 +1692,25 @@
         );
       }
 
+      let repeat_after_last_digit = "*";
+      if(
+        parameters.min_number_of_spaces_after_last_digit
+        !== null
+        || parameters.max_number_of_spaces_after_last_digit
+        !== null
+      ){
+        repeat_after_last_digit = get_repeat_string(
+          parameters.min_number_of_spaces_after_last_digit,
+          parameters.max_number_of_spaces_after_last_digit,
+        );
+      }
+      let all_spaces_after_last_digit_regexp = (
+        get_regexp_with_repeat(
+          any_space_after_last_digit_regexp,
+          repeat_after_last_digit,
+        )
+      );
+
       let repeat_before = "+";
       let repeat_after = "+";
       if(
@@ -1642,6 +1760,7 @@
           // + any_digit_regexp + "+"
           + get_regexp_with_repeat(any_digit_regexp, repeat_after)
           + (enforce_decimal_part ? "" : ")?")
+        + all_spaces_after_last_digit_regexp
         // + "$)" // We want all the string.
       );
       if(bare_requirement_as_positive_look_ahead){
@@ -1674,6 +1793,7 @@
             + any_decimal_separator_regexp
             + any_digit_regexp + "*"
             + zero_digit_regexp
+            + all_spaces_after_last_digit_regexp
             + "$)" // We want all the string.
           );
         }
@@ -1684,6 +1804,7 @@
             + any_decimal_separator_regexp
             + ".*"
             + zero_digit_regexp
+            + all_spaces_after_last_digit_regexp
             + "$)" // We want all the string.
           );
         }
@@ -1699,6 +1820,7 @@
             + any_decimal_separator_regexp
             + zero_digit_regexp + "*"
             + ")?" // Then maybe a decimal part
+          + all_spaces_after_last_digit_regexp
           + "$)" // We want all the string.
         );
       }
@@ -1712,6 +1834,7 @@
             + any_decimal_separator_regexp
             + zero_digit_regexp + "*"
             + ")?" // Then maybe a decimal part
+          + all_spaces_after_last_digit_regexp
           + "$)" // We want all the string.
         );
       }
@@ -1761,6 +1884,7 @@
                 repeat_with_decimal_separator,
               )
             + ")"
+          + all_spaces_after_last_digit_regexp
           + "$)" // We want all the string.
         );
       }
@@ -1779,6 +1903,8 @@
               + any_decimal_separator_regexp
               + zero_digit_regexp + "*"
             + ")?"
+            + all_spaces_after_last_digit_regexp
+            + "$"
           );
         }
         let equals_regexp = "";
@@ -1813,6 +1939,7 @@
           );
         }
 
+        equals_regexp += all_spaces_after_last_digit_regexp;
         equals_regexp += "$";
         return equals_regexp;
       }
@@ -1871,7 +1998,9 @@
               + "|" // Or a positive number
                 + "(?!" + minus_sign_regexp + ")"
                 + ".*" // + any_positive_digit_regexp + ".*"
-              + ")$"
+              + ")"
+              + all_spaces_after_last_digit_regexp
+              + "$"
             )
             return result_regexp;
           }
@@ -1954,7 +2083,11 @@
         );
 
         // We close our sequence of alternatives.
-        result_regexp += ")$";
+        result_regexp += (
+          ")"
+          + all_spaces_after_last_digit_regexp
+          + "$"
+        );
         return result_regexp;
       }
 
@@ -2009,7 +2142,8 @@
               + "}"
               : ""
             )
-            + "($|" + any_decimal_separator_regexp + ".*)"
+            + "(" + all_spaces_after_last_digit_regexp + "$|"
+              + any_decimal_separator_regexp + ".*)"
           );
         }
 
@@ -2036,7 +2170,8 @@
                 );
               }
               result_regexp += (
-                "($|" + any_decimal_separator_regexp + ".*)"
+                "(" + all_spaces_after_last_digit_regexp + "$|"
+                  + any_decimal_separator_regexp + ".*)"
               );
             }
             else{
@@ -2053,7 +2188,7 @@
             result_regexp += (
               "|" + common_prefix
               + escapeRegExp(digit)
-              + "($|"
+              + "(" + all_spaces_after_last_digit_regexp + "$|"
               + any_decimal_separator_regexp
               + zero_digit_regexp + "*)"
             );
@@ -2073,7 +2208,11 @@
         );
 
         // We close our sequence of alternatives.
-        result_regexp += ")$";
+        result_regexp += (
+          ")"
+          + all_spaces_after_last_digit_regexp
+          + "$"
+        );
         return result_regexp;
       }
 
@@ -2104,7 +2243,9 @@
               + "|" // Or a negative number
                 + minus_sign_regexp
                 + ".*" // + any_positive_digit_regexp + ".*"
-              + ")$"
+              + ")"
+              + all_spaces_after_last_digit_regexp
+              + "$"
             )
             return result_regexp;
           }
@@ -2147,7 +2288,8 @@
               + "}"
               : ""
             )
-            + "($|" + any_decimal_separator_regexp + ".*)"
+            + "(" + all_spaces_after_last_digit_regexp + "$|"
+              + any_decimal_separator_regexp + ".*)"
           );
         }
 
@@ -2174,7 +2316,8 @@
                 );
               }
               result_regexp += (
-                "($|" + any_decimal_separator_regexp + ".*)"
+                "(" + all_spaces_after_last_digit_regexp + "$|"
+                  + any_decimal_separator_regexp + ".*)"
               );
             }
             else{
@@ -2191,7 +2334,7 @@
             result_regexp += (
               "|" + common_prefix
               + escapeRegExp(digit)
-              + "($|"
+              + "(" + all_spaces_after_last_digit_regexp + "$|"
               + any_decimal_separator_regexp
               + zero_digit_regexp + "*)"
             );
@@ -2211,7 +2354,11 @@
         );
 
         // We close our sequence of alternatives.
-        result_regexp += ")$";
+        result_regexp += (
+          ")"
+          + all_spaces_after_last_digit_regexp
+          + "$"
+        );
         return result_regexp;
       }
 
@@ -2298,7 +2445,11 @@
         );
 
         // We close our sequence of alternatives.
-        result_regexp += ")$";
+        result_regexp += (
+          ")"
+          + all_spaces_after_last_digit_regexp
+          + "$"
+        );
         return result_regexp;
       }
 
@@ -2436,7 +2587,8 @@
                   // at least this number of zeros at the end
                   + zero_digit_regexp
                   + "{" + (parameters.step.length - 1) + "}"
-                  + "($|" + any_decimal_separator_regexp + ")"
+                  + "(" + all_spaces_after_last_digit_regexp + "$|"
+                    + any_decimal_separator_regexp + ")"
                 + ")"
               );
             }
