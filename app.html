@@ -762,6 +762,7 @@
     <textarea
       id="result"
       style="width: 100%; box-sizing: border-box;"
+      onkeyup="result_changed()"
     ></textarea>
   </div>
 
@@ -872,6 +873,23 @@
         + "</span>"
       );
       document.getElementById("submit_test").click();
+    }
+
+
+    function result_changed(){
+      let result_regexp = (
+        document.getElementById("result").value
+      );
+      let test_string_element = (
+        document.getElementById("test_string")
+      );
+      test_string_element.pattern = result_regexp;
+      test_string_element.title = (
+        "This input has the following pattern: "
+        + result_regexp
+      );
+      reinit_test_your_result();
+      document.getElementById("result").focus();
     }
 
 
