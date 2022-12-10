@@ -59,6 +59,13 @@ optional parameters:
 
 - a min value that can be an arbitrary decimal number,
 - a max value that can be an arbitrary decimal number,
+- a step value that works currently:
+    - efficiently for numbers that can be written as 1/b^k,
+      like 100 or 0.01,
+    - more or less efficiently for steps without decimal parts:
+      your mileage may vary but do not expect great results
+      if your step has many significant digits,
+    - support for decimal part is in progress,
 - allow or not leading zeros,
 - allow or not trailing zeros,
 - a min (positive or zero integer) number of digits before decimal
@@ -135,10 +142,6 @@ spaces characters between digits after decimal separator,
 - a max (positive integer) number of contiguous digits,
 you can set both to 3 for thousands separators.
 
-There is also a step parameter
-that works currently only for number
-that can be written as 1/b^k, like 100 or 0.01.
-
 app.html is hosted there on my website:
 <https://lyaudet.eu/laurent/DecimalsRangeRegexpGenerator/app.html>
 Since it is only static HTML and JS,
@@ -150,13 +153,15 @@ If you are happy with GNU AGPL,
 I welcome contributions to this project
 for the following things to be done:
 
-- allow arbitrary step: for a number n/b^k, the regular expression
-  should be linear in n,
+- improve step regular expression generation
+  with special cases and techniques to simplify it:
+  for a number n/b^k, the regular expression
+  should be at least linear in n, most of the time,
   which means exponential in the writing of n;
-  hence, it would come with practical limits;
+  hence, it comes with practical limits;
   but it would still be nice to be able to have a step
-  like 0.25 working, for example;
-  one could start by developing it for numbers as n/1 = n.
+  like 5 or 0.25, for example,
+  working with a small regular expression;
 - add some testing code and enhance UI;
 - other ideas you may have?
 

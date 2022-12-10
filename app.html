@@ -9,6 +9,15 @@
   <meta name="Keywords"
     content="RegExp, regular expression, generator, decimal number, min, max, step">
   <title>DecimalsRangeRegexpGenerator</title>
+  <style>
+    table.transitions {
+      border: solid 2px;
+      border-collapse: collapse;
+    }
+    table.transitions td, table.transitions th{
+      border: solid 2px;
+    }
+  </style>
 </head>
 <body>
   <!--
@@ -96,9 +105,6 @@
       <label for="step">
         Step
         (optional, it will default to arbitrary precision and not 1):
-        <span style="color: crimson">
-          Not fully working, limited to power of your base (10)
-        </span>
       </label>
       <input
         type="text"
@@ -108,6 +114,23 @@
         id="step"
         name="step"
       >
+      <p>
+        <span style="color: forestgreen">
+          Efficient for a step that is
+          a power of your base (default: 10).
+        </span>
+        <span style="color: crimson">
+          Otherwise experimental,
+          since the general algorithm I use
+          generates regular expressions
+          that becomes too big most of the time.
+          Try 111 = 7 in base 01 for an example
+          where it works without being excessively long.
+
+          Moreover,
+          step with decimal part is not currently supported.
+        </span>
+      </p>
     </div>
 
     <hr>
@@ -793,6 +816,11 @@
     </p>
   </form>
 
+  <hr>
+  <h4>Detail of step calculus</h4>
+  <div id="step_calculus">
+  </div>
+
   <br>
   <br>
   <hr>
@@ -1034,7 +1062,9 @@
     set_positive_integer_parameter_in_form("max_number_of_digits");
     set_checkbox_parameter_in_form("allow_zero_with_minus");
     set_checkbox_parameter_in_form("allow_zero_with_plus");
-    set_checkbox_parameter_in_form("allow_positive_number_with_plus");
+    set_checkbox_parameter_in_form(
+      "allow_positive_number_with_plus"
+    );
     set_text_parameter_in_form("digits");
     set_text_parameter_in_form("decimal_separators");
     set_text_parameter_in_form("plus_signs");
@@ -1573,7 +1603,8 @@
         }
         if(end_of_range === null){
           if(
-            element.charCodeAt(0) === start_of_range.charCodeAt(0) + 1
+            element.charCodeAt(0)
+            === start_of_range.charCodeAt(0) + 1
           ){
             end_of_range = element;
           }
@@ -2046,8 +2077,8 @@
         !== null
       ){
         // repeat_before = get_repeat_string(
-        //   parameters.min_number_of_digits_before_decimal_separator,
-        //   parameters.max_number_of_digits_before_decimal_separator,
+        //  parameters.min_number_of_digits_before_decimal_separator,
+        //  parameters.max_number_of_digits_before_decimal_separator,
         // );
         min_digits_before = (
           parameters.min_number_of_digits_before_decimal_separator
@@ -2333,7 +2364,9 @@
           start_at = 1;
         }
         else{
-          equals_regexp += enclosed_plus_sign_and_spaces_regexp + "?";
+          equals_regexp += (
+            enclosed_plus_sign_and_spaces_regexp + "?"
+          );
         }
         equals_regexp += zero_digit_any_time_regexp;
         for(let i = start_at; i < some_number_array.length; ++i){
@@ -2752,11 +2785,13 @@
             );
             if(number_of_digits_before_decimal_separator >= 0){
               if(number_of_digits_before_decimal_separator > 0){
-                result_regexp += get_regexp_with_minmax_repeat_and_spacing(
-                  any_digit_regexp,
-                  number_of_digits_before_decimal_separator,
-                  number_of_digits_before_decimal_separator,
-                  some_contiguous_spaces_intra_number,
+                result_regexp += (
+                  get_regexp_with_minmax_repeat_and_spacing(
+                    any_digit_regexp,
+                    number_of_digits_before_decimal_separator,
+                    number_of_digits_before_decimal_separator,
+                    some_contiguous_spaces_intra_number,
+                  )
                 );
               }
               result_regexp += (
@@ -3071,10 +3106,309 @@
           }
         }
         else{
-          error_message += (
-            "This value of step is not currently supported, sorry.\n"
-            + "<br>"
+          // We compute the underlying positive integer
+          // and the offset.
+          let step_calculus_element = (
+            document.getElementById("step_calculus")
           );
+          let underlying_integer_string = "";
+          let underlying_integer = 0
+          let offset = null;
+
+          if(has_a_decimal_separator){
+            for(let digit of parameters.step){
+              if(
+                offset !== null
+                && parameters.digits.includes(digit)
+              ){
+                --offset;
+                continue;
+              }
+              if(parameters.decimal_separators.includes(digit)){
+                offset = 0;
+              }
+            }
+            for(let digit of parameters.step){
+              if(parameters.digits.includes(digit)){
+                underlying_integer_string += digit;
+                underlying_integer = (
+                  (underlying_integer * parameters.digits.length)
+                  + parameters.digits.indexOf(digit)
+                );
+              }
+            }
+          }
+          else{
+            offset = 0;
+            for(let i = parameters.step.length - 1; i >= 0; --i){
+              if(zero_digit !== parameters.step[i]){
+                break;
+              }
+              ++offset;
+            }
+            for(
+              let i = 0, i_max = parameters.step.length - offset;
+              i < i_max;
+              ++i
+            ){
+              let digit = parameters.step[i];
+              if(parameters.digits.includes(digit)){
+                underlying_integer_string += digit;
+                underlying_integer = (
+                  (underlying_integer * parameters.digits.length)
+                  + parameters.digits.indexOf(digit)
+                );
+              }
+            }
+          }
+
+          step_calculus_element.innerHTML = (
+            "From step: "
+            + escapeHTML(parameters.step.join("")) + "<br>\n"
+            + "I found one underlying integer: "
+            + escapeHTML(underlying_integer_string) + "<br>\n"
+            + "Its value in decimal is: "
+            + underlying_integer + "<br>\n"
+            + "The offset to apply is: "
+            + offset + "<br>\n"
+          );
+          // We compute the transitions between congruences/states
+          // of the automaton.
+          let max_total_length = 1000000;
+          let number_of_states = underlying_integer;
+          let all_transitions = [];
+          let initial_transitions = [];
+          all_transitions.push(initial_transitions);
+          // init of initial_transitions 2-dimensional array
+          for(let i = 0; i < number_of_states; ++i){
+            let row = [];
+            initial_transitions.push(row);
+            for(let j = 0; j < number_of_states; ++j){
+              row.push(null);
+            }
+          }
+          for(let i = 0; i < number_of_states; ++i){
+            // i is the state we start from
+            for(let j = 0; j < parameters.digits.length; ++j){
+              // j is the digit we read (digits[j])
+              let digit = parameters.digits[j];
+              let result_state = (
+                ((i * parameters.digits.length) + j)
+                % underlying_integer
+              );
+              if(initial_transitions[i][result_state] === null){
+                initial_transitions[i][result_state] = (
+                  escapeRegExp(digit)
+                );
+              }
+              else{
+                initial_transitions[i][result_state] += (
+                  "|" + escapeRegExp(digit)
+                );
+              }
+            }
+          }
+
+          function log_table_for_transitions(
+            transitions,
+            number_of_states,
+          ){
+            let table_string = "";
+            table_string += (
+              "Computing the possible transitions between the "
+              + number_of_states + " states:\n"
+              + "<table class=\"transitions\">"
+              + "<tbody><tr><th style=\"border: solid 2px;\"></th>"
+            );
+            for(let j = 0; j < number_of_states; ++j){
+              table_string += (
+                "<th>" + j + "</th>"
+              );
+            }
+            table_string += "</tr>\n";
+            for(let i = 0; i < number_of_states; ++i){
+              table_string += (
+                "<tr>"
+                + "<th>" + i + "</th>"
+              );
+              for(let j = 0; j < number_of_states; ++j){
+                let td = "";
+                if(transitions[i][j] !== null){
+                  td = escapeHTML(transitions[i][j]);
+                }
+                table_string += (
+                  "<td>" + td + "</td>"
+                );
+              }
+              table_string += "</tr>\n";
+            }
+
+            table_string += (
+               "</tbody></table>\n"
+               + "<br>\n"
+            )
+            step_calculus_element.innerHTML += table_string;
+          }
+
+          log_table_for_transitions(
+            initial_transitions,
+            number_of_states,
+          );
+
+          let previous_transitions = initial_transitions;
+          let total_length = 0;
+          while(number_of_states > 1){
+            --number_of_states;
+            let deleted_state = number_of_states;
+            total_length = 0;
+            let current_transitions = [];
+            for(let i = 0; i < number_of_states; ++i){
+              let row = [];
+              current_transitions.push(row);
+              for(let j = 0; j < number_of_states; ++j){
+                let transition = [];
+                row.push(transition);
+                if(previous_transitions[i][j] !== null){
+                  transition.push(previous_transitions[i][j]);
+                  total_length += previous_transitions[i][j].length;
+                }
+              }
+            }
+
+            let loop_on_deleted_state = "";
+            if(
+              previous_transitions[deleted_state][deleted_state]
+              !== null
+            ){
+              if(
+                some_contiguous_spaces_intra_number === ""
+                && parameters.digits.includes(
+                  previous_transitions[deleted_state][deleted_state]
+                )
+              ){
+                loop_on_deleted_state = (
+                  previous_transitions[deleted_state][deleted_state]
+                  + "*"
+                );
+              }
+              else{
+                loop_on_deleted_state = (
+                  "("
+                  + previous_transitions
+                      [deleted_state][deleted_state]
+                  + some_contiguous_spaces_intra_number
+                  + ")*"
+                );
+              }
+            }
+            for(let i = 0; i < number_of_states; ++i){
+              if(previous_transitions[i][deleted_state] === null){
+                continue;
+              }
+              for(let j = 0; j < number_of_states; ++j){
+                if(previous_transitions[deleted_state][j] === null){
+                  continue;
+                }
+                let transition = (
+                  previous_transitions[i][deleted_state]
+                  + some_contiguous_spaces_intra_number
+                  + loop_on_deleted_state
+                  + previous_transitions[deleted_state][j]
+                )
+                current_transitions[i][j].push(transition);
+                total_length += transition.length;
+                if(total_length > max_total_length){
+                  break;
+                }
+              }
+              if(total_length > max_total_length){
+                break;
+              }
+            }
+            if(total_length > max_total_length){
+              break;
+            }
+
+            for(let i = 0; i < number_of_states; ++i){
+              for(let j = 0; j < number_of_states; ++j){
+                if(current_transitions[i][j].length === 0){
+                  current_transitions[i][j] = null;
+                  continue;
+                }
+                if(current_transitions[i][j].length === 1){
+                  current_transitions[i][j] = (
+                    current_transitions[i][j][0]
+                  );
+                  continue;
+                }
+                current_transitions[i][j] = (
+                  "("
+                  + current_transitions[i][j].join("|")
+                  + ")"
+                );
+              }
+            }
+
+            all_transitions.push(current_transitions);
+            previous_transitions = current_transitions;
+            log_table_for_transitions(
+              current_transitions,
+              number_of_states,
+            );
+          }
+
+          if(total_length > max_total_length) {
+            error_message += (
+              "This value of step is not currently supported,"
+              + " sorry.\n"
+              + "<br>"
+              + "Maximum length (" + max_total_length
+              + ") of subregexps for steps was reached.\n"
+              + "<br>"
+              + "You will find below some intermediate"
+              + " steps of calculus (of step... regexp ;) ).\n"
+              + "<br>"
+              + "You can modify the source code and try anyway."
+              + " But I recommend saving all your work,"
+              + " and using some web-browser where you have not"
+              + " all your pinned open tabs."
+              + "Because it can grow really fast;"
+              + " your PC or your smartphone may swap memory;"
+              + " and you may have to kill your web-browser"
+              + " or restart your device,"
+              + " or the OS will do it for you."
+            );
+          }
+          else{
+            if(offset >= 0){
+              regular_expression_string += (
+                "(?="
+                  + enclosed_any_sign_and_spaces_regexp + "?"
+                  + "(" + previous_transitions[0][0] + ")*"
+                  + get_regexp_with_minmax_repeat_and_spacing(
+                    zero_digit_regexp,
+                    offset,
+                    null,
+                    some_contiguous_spaces_intra_number,
+                  )
+                  + "("
+                    + some_contiguous_spaces_intra_number
+                    + any_decimal_separator_regexp
+                    + some_contiguous_spaces_intra_number
+                    + zero_digit_any_time_regexp
+                  + ")?"
+                  + all_spaces_after_last_digit_regexp
+                + "$)"
+              );
+            }
+            else{
+              error_message += (
+                "This value of step is not currently supported,"
+                + " sorry.\n"
+                + "<br>"
+              );
+            }
+          }
         }
       }
 
