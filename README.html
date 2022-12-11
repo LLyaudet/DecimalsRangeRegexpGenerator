@@ -1,0 +1,157 @@
+<p>This file is part of DecimalsRangeRegexpGenerator.</p>
+<p>DecimalsRangeRegexpGenerator is free software: you can redistribute
+it and/or modify it under the terms of the GNU Affero General Public
+License as published by the Free Software Foundation, either version 3
+of the License, or (at your option) any later version.</p>
+<p>DecimalsRangeRegexpGenerator is distributed in the hope that it will
+be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+Affero General Public License for more details.</p>
+<p>You should have received a copy of the GNU Affero General Public
+License along with DecimalsRangeRegexpGenerator. If not, see <a
+href="https://www.gnu.org/licenses/"
+class="uri">https://www.gnu.org/licenses/</a></p>
+<p>©Copyright 2022 Laurent Lyaudet</p>
+<h1 id="decimalsrangeregexpgenerator">DecimalsRangeRegexpGenerator</h1>
+<p>Handle min, max and step to produce a regular expression for ranges
+of decimal numbers.</p>
+<p>Several integers range regular expression generators can be found on
+GitHub, but they do not handle decimal numbers. (Decimal numbers are the
+subset of the rational numbers that can be written as n/10^k where n and
+k are integers.) They can handle min and max parameters, but they do not
+handle step parameter.</p>
+<p>The goal of this dev tool is to have an easy path to avoid most use
+cases of HTML’s:</p>
+<pre><code>&lt;input type=&quot;number&quot; min=&quot;@some_decimal1@&quot; max=&quot;@some_decimal2@&quot; step=&quot;@some_decimal3@&quot;&gt;</code></pre>
+<p>by using</p>
+<pre><code>&lt;input type=&quot;text&quot; inputmode=&quot;numeric&quot; pattern=&quot;@some_regexp@&quot;&gt;</code></pre>
+<p>instead.</p>
+<p>For a few reasons to replace input number with input text and a
+pattern, you may read the following blog articles or webpages:</p>
+<ul>
+<li><a
+href="https://technology.blog.gov.uk/2020/02/24/why-the-gov-uk-design-system-team-changed-the-input-type-for-numbers/"
+class="uri">https://technology.blog.gov.uk/2020/02/24/why-the-gov-uk-design-system-team-changed-the-input-type-for-numbers/</a></li>
+<li><a
+href="https://bradfrost.com/blog/post/you-probably-dont-need-input-typenumber/"
+class="uri">https://bradfrost.com/blog/post/you-probably-dont-need-input-typenumber/</a></li>
+<li><a
+href="https://stackoverflow.blog/2022/09/15/why-the-number-input-is-the-worst-input/"
+class="uri">https://stackoverflow.blog/2022/09/15/why-the-number-input-is-the-worst-input/</a></li>
+<li><a
+href="https://ux.stackexchange.com/questions/119870/input-type-number-or-input-type-text-for-entering-an-id"
+class="uri">https://ux.stackexchange.com/questions/119870/input-type-number-or-input-type-text-for-entering-an-id</a></li>
+</ul>
+<h2 id="current-features">Current features</h2>
+<p>So far, you can customize your regular expression with the following
+optional parameters:</p>
+<ul>
+<li>a min value that can be an arbitrary decimal number,</li>
+<li>a max value that can be an arbitrary decimal number,</li>
+<li>a step value that works currently:
+<ul>
+<li>efficiently for numbers that can be written as 1/b^k, like 100 or
+0.01,</li>
+<li>more or less efficiently for other steps: your mileage may vary but
+do not expect great results if your step has many significant
+digits,</li>
+</ul></li>
+<li>allow or not leading zeros,</li>
+<li>allow or not trailing zeros,</li>
+<li>a min (positive or zero integer) number of digits before decimal
+separator,</li>
+<li>a max (positive or zero integer) number of digits before decimal
+separator,</li>
+<li>a min (positive or zero integer) number of digits after decimal
+separator,</li>
+<li>a max (positive or zero integer) number of digits after decimal
+separator,</li>
+<li>apply or not min number of digits after decimal part if there is no
+decimal part,</li>
+<li>a min (positive or zero integer) number of digits before or after
+decimal separator,</li>
+<li>a max (positive or zero integer) number of digits before or after
+decimal separator,</li>
+<li>allow or not zero to be written with a minus sign,</li>
+<li>allow or not zero to be written with a plus sign,</li>
+<li>allow or not numbers above zero to be written with a plus sign.</li>
+</ul>
+<p>Moreover, you can change the number of digits (your base) and the
+unicode characters you use for:</p>
+<ul>
+<li>digits,</li>
+<li>decimal separators,</li>
+<li>minus signs,</li>
+<li>plus signs.</li>
+</ul>
+<p>With a number of digits different of ten, you are not dealing with
+decimal numbers anymore. You look at numbers that can be written as
+n/b^k where n and k are integers and b is your base (the number of
+digits you specified). Try the digits “0🐛” for “buginary” encoding
+;).</p>
+<p>Spacing is supported with:</p>
+<ul>
+<li>spaces characters allowed before a sign character</li>
+<li>a min (positive or zero integer) number of spaces before the
+sign,</li>
+<li>a max (positive or zero integer) number of spaces before the
+sign,</li>
+<li>spaces characters allowed before a number without sign,</li>
+<li>a min (positive or zero integer) number of spaces before the
+number,</li>
+<li>a max (positive or zero integer) number of spaces before the
+number,</li>
+<li>spaces characters allowed between a sign and a number (you may use
+non-breakable space here for example),</li>
+<li>a min (positive or zero integer) number of spaces between a sign and
+a number,</li>
+<li>a max (positive or zero integer) number of spaces between a sign and
+a number,</li>
+<li>spaces characters allowed after last_digit,</li>
+<li>a min (positive or zero integer) number of spaces after
+last_digit,</li>
+<li>a max (positive or zero integer) number of spaces after
+last_digit,</li>
+<li>spaces characters between digits before decimal separator,</li>
+<li>a min (positive or zero integer) number of spaces characters between
+digits before decimal separator,</li>
+<li>a max (positive or zero integer) number of spaces characters between
+digits before decimal separator,</li>
+<li>spaces characters between digit and decimal separator,</li>
+<li>a min (positive or zero integer) number of spaces characters between
+digit and decimal separator,</li>
+<li>a max (positive or zero integer) number of spaces characters between
+digit and decimal separator,</li>
+<li>spaces characters between decimal separator and digit,</li>
+<li>a min (positive or zero integer) number of spaces characters between
+decimal separator and digit,</li>
+<li>a max (positive or zero integer) number of spaces characters between
+decimal separator and digit,</li>
+<li>spaces characters between digits after decimal separator,</li>
+<li>a min (positive or zero integer) number of spaces characters between
+digits after decimal separator,</li>
+<li>a max (positive or zero integer) number of spaces characters between
+digits after decimal separator,</li>
+<li>a min (positive integer) number of contiguous digits,</li>
+<li>a max (positive integer) number of contiguous digits, you can set
+both to 3 for thousands separators.</li>
+</ul>
+<p>app.html is hosted there on my website: <a
+href="https://lyaudet.eu/laurent/DecimalsRangeRegexpGenerator/app.html"
+class="uri">https://lyaudet.eu/laurent/DecimalsRangeRegexpGenerator/app.html</a>
+Since it is only static HTML and JS, it should handle many users :).
+Otherwise, you can just save the file on your computer, and open it in
+your web-browser to use it.</p>
+<p>If you are happy with GNU AGPL, I welcome contributions to this
+project for the following things to be done:</p>
+<ul>
+<li>improve step regular expression generation with special cases and
+techniques to simplify it: for a number n/b^k, the regular expression
+should be at least linear in n, most of the time, which means
+exponential in the writing of n; hence, it comes with practical limits;
+but it would still be nice to be able to have a step like 0.25, for
+example, working with a small regular expression;</li>
+<li>add some testing code and enhance UI;</li>
+<li>other ideas you may have?</li>
+</ul>
+<p>Please, email me, if you are interested.</p>
