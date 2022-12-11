@@ -62,10 +62,9 @@ optional parameters:
 - a step value that works currently:
     - efficiently for numbers that can be written as 1/b^k,
       like 100 or 0.01,
-    - more or less efficiently for steps without decimal parts:
+    - more or less efficiently for other steps:
       your mileage may vary but do not expect great results
       if your step has many significant digits,
-    - support for decimal part is in progress,
 - allow or not leading zeros,
 - allow or not trailing zeros,
 - a min (positive or zero integer) number of digits before decimal
@@ -160,7 +159,7 @@ for the following things to be done:
   which means exponential in the writing of n;
   hence, it comes with practical limits;
   but it would still be nice to be able to have a step
-  like 5 or 0.25, for example,
+  like 0.25, for example,
   working with a small regular expression;
 - add some testing code and enhance UI;
 - other ideas you may have?

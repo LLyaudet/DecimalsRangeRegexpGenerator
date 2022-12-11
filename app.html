@@ -124,11 +124,12 @@
           since the general algorithm I use
           generates regular expressions
           that becomes too big most of the time.
-          Try 111 = 7 in base 01 for an example
+          Try 111 = 7 in base 01, or 5 or 0.5 in base 0123456789
+          for an example
           where it works without being excessively long.
-
-          Moreover,
-          step with decimal part is not currently supported.
+          Try 0.25 in base 0123456789 for an example
+          where the current algorithm is too dumb to compute
+          a short regular expression.
         </span>
       </p>
     </div>
@@ -3074,7 +3075,11 @@
             );
             if(parameters.step.length > 1){
               regular_expression_string += (
-                "(?=.*"
+                "(?="
+                // Zéro est valide
+                + "(?!.*" + any_positive_digit_regexp + ")"
+                // Sinon:
+                + "|.*"
                   // at least this number of zeros at the end
                   + get_regexp_with_minmax_repeat_and_spacing(
                     zero_digit_regexp,
@@ -3172,23 +3177,79 @@
             + "The offset to apply is: "
             + offset + "<br>\n"
           );
+
           // We compute the transitions between congruences/states
           // of the automaton.
-          let max_total_length = 1000000;
           let number_of_states = underlying_integer;
+          let needed_states_for_offset = new Map();
+          let all_states_to_keep = [0];
+          if(offset < 0){
+            needed_states_for_offset.set(offset, [0]);
+            let current_offset = offset;
+            while(current_offset < 0){
+              let previous_offset = current_offset;
+              ++current_offset;
+              let current_states = [];
+              needed_states_for_offset.set(
+                current_offset,
+                current_states,
+              );
+              for(let i = 0; i < number_of_states; ++i){
+                if(
+                  needed_states_for_offset.get(previous_offset)
+                  .includes(
+                    (i * parameters.digits.length)
+                    % underlying_integer
+                  )
+                ){
+                  current_states.push(i);
+                }
+              }
+              if(
+                current_states.length > 0
+                && current_states.length < number_of_states
+              ){
+                all_states_to_keep.push(...current_states);
+              }
+            }
+            all_states_to_keep = [... new Set(all_states_to_keep)];
+            let log = (
+              "Given the decimal part,"
+              + " the following states will be needed:<br>\n"
+            );
+            for(
+              const [offset, states]
+              of needed_states_for_offset.entries()
+            ){
+              log += (
+                "Offset: " + offset
+                + " needs states: " + states.join(",")
+                + ".<br>\n"
+              );
+            }
+            log += (
+              "Reduced to states: "
+              + all_states_to_keep.join(",")
+              + ".<br>\n"
+            )
+            step_calculus_element.innerHTML += log;
+          }
+
+          let max_total_length = 1000000;
           let all_transitions = [];
-          let initial_transitions = [];
+          let initial_transitions = new Map();
           all_transitions.push(initial_transitions);
           // init of initial_transitions 2-dimensional array
           for(let i = 0; i < number_of_states; ++i){
-            let row = [];
-            initial_transitions.push(row);
+            let row = new Map();
+            initial_transitions.set(i, row);
             for(let j = 0; j < number_of_states; ++j){
-              row.push(null);
+              row.set(j, null);
             }
           }
           for(let i = 0; i < number_of_states; ++i){
             // i is the state we start from
+            let row = initial_transitions.get(i);
             for(let j = 0; j < parameters.digits.length; ++j){
               // j is the digit we read (digits[j])
               let digit = parameters.digits[j];
@@ -3196,45 +3257,43 @@
                 ((i * parameters.digits.length) + j)
                 % underlying_integer
               );
-              if(initial_transitions[i][result_state] === null){
-                initial_transitions[i][result_state] = (
-                  escapeRegExp(digit)
-                );
+              if(row.get(result_state) === null){
+                row.set(result_state, escapeRegExp(digit));
               }
               else{
-                initial_transitions[i][result_state] += (
-                  "|" + escapeRegExp(digit)
+                row.set(
+                  result_state,
+                  row.get(result_state) + "|" + escapeRegExp(digit)
                 );
               }
             }
           }
 
-          function log_table_for_transitions(
-            transitions,
-            number_of_states,
-          ){
+
+          function log_table_for_transitions(transitions){
             let table_string = "";
             table_string += (
-              "Computing the possible transitions between the "
-              + number_of_states + " states:\n"
+              "Computing the possible transitions between"
+              + " the following states:\n"
               + "<table class=\"transitions\">"
               + "<tbody><tr><th style=\"border: solid 2px;\"></th>"
             );
-            for(let j = 0; j < number_of_states; ++j){
+            // state 0 is always there
+            for(const j of transitions.get(0).keys()){
               table_string += (
                 "<th>" + j + "</th>"
               );
             }
             table_string += "</tr>\n";
-            for(let i = 0; i < number_of_states; ++i){
+            for(const [i, row] of transitions.entries()){
               table_string += (
                 "<tr>"
                 + "<th>" + i + "</th>"
               );
-              for(let j = 0; j < number_of_states; ++j){
+              for(const value of row.values()){
                 let td = "";
-                if(transitions[i][j] !== null){
-                  td = escapeHTML(transitions[i][j]);
+                if(value !== null){
+                  td = escapeHTML(value);
                 }
                 table_string += (
                   "<td>" + td + "</td>"
@@ -3250,110 +3309,173 @@
             step_calculus_element.innerHTML += table_string;
           }
 
-          log_table_for_transitions(
-            initial_transitions,
-            number_of_states,
-          );
 
-          let previous_transitions = initial_transitions;
+          log_table_for_transitions(initial_transitions);
+
+
           let total_length = 0;
-          while(number_of_states > 1){
-            --number_of_states;
-            let deleted_state = number_of_states;
+          function delete_one_state_of(
+            previous_transitions,
+            deleted_state,
+          ){
             total_length = 0;
-            let current_transitions = [];
-            for(let i = 0; i < number_of_states; ++i){
-              let row = [];
-              current_transitions.push(row);
-              for(let j = 0; j < number_of_states; ++j){
+            let current_transitions = new Map();
+            for(
+              const [i, old_row] of previous_transitions.entries()
+            ){
+              if(i === deleted_state){
+                continue;
+              }
+              let row = new Map();
+              current_transitions.set(i, row);
+              for(const j of old_row.keys()){
+                if(j === deleted_state){
+                  continue;
+                }
                 let transition = [];
-                row.push(transition);
-                if(previous_transitions[i][j] !== null){
-                  transition.push(previous_transitions[i][j]);
-                  total_length += previous_transitions[i][j].length;
+                row.set(j, transition);
+                let old_value = old_row.get(j);
+                if(old_value !== null){
+                  transition.push(old_value);
+                  total_length += old_value.length;
                 }
               }
             }
 
             let loop_on_deleted_state = "";
-            if(
-              previous_transitions[deleted_state][deleted_state]
-              !== null
-            ){
+            let delete_to_delete = (
+              previous_transitions.get(deleted_state)
+              .get(deleted_state)
+            );
+            if(delete_to_delete !== null){
               if(
                 some_contiguous_spaces_intra_number === ""
-                && parameters.digits.includes(
-                  previous_transitions[deleted_state][deleted_state]
-                )
+                && parameters.digits.includes(delete_to_delete)
+                && !has_a_decimal_separator
               ){
-                loop_on_deleted_state = (
-                  previous_transitions[deleted_state][deleted_state]
-                  + "*"
-                );
+                loop_on_deleted_state = delete_to_delete + "*";
               }
               else{
                 loop_on_deleted_state = (
                   "("
-                  + previous_transitions
-                      [deleted_state][deleted_state]
+                  + delete_to_delete
                   + some_contiguous_spaces_intra_number
+                  + (has_a_decimal_separator
+                    ? any_decimal_separator_regexp + "?"
+                    + some_contiguous_spaces_intra_number
+                    : ""
+                    )
                   + ")*"
                 );
               }
             }
-            for(let i = 0; i < number_of_states; ++i){
-              if(previous_transitions[i][deleted_state] === null){
+
+            for(const i of current_transitions.keys()){
+              let from_transition = (
+                previous_transitions.get(i).get(deleted_state)
+              );
+              if(from_transition === null){
                 continue;
               }
-              for(let j = 0; j < number_of_states; ++j){
-                if(previous_transitions[deleted_state][j] === null){
+              if(from_transition.length > 1){
+                from_transition = "(" + from_transition + ")";
+              }
+              for(const j of current_transitions.keys()){
+                let to_transition = (
+                  previous_transitions.get(deleted_state).get(j)
+                );
+                if(to_transition === null){
                   continue;
+                }
+                if(to_transition.length > 1){
+                  to_transition = "(" + to_transition + ")";
                 }
                 let transition = (
-                  previous_transitions[i][deleted_state]
+                  "("
+                  + from_transition
                   + some_contiguous_spaces_intra_number
+                  + (has_a_decimal_separator
+                    ? any_decimal_separator_regexp + "?"
+                    + some_contiguous_spaces_intra_number
+                    : ""
+                    )
                   + loop_on_deleted_state
-                  + previous_transitions[deleted_state][j]
+                  + to_transition
+                  + ")"
                 )
-                current_transitions[i][j].push(transition);
+                current_transitions.get(i).get(j).push(transition);
                 total_length += transition.length;
                 if(total_length > max_total_length){
-                  break;
+                  return null;
                 }
               }
-              if(total_length > max_total_length){
-                break;
+            }
+
+            // Convert back each value from array to string
+            for(const i of current_transitions.keys()){
+              let row = current_transitions.get(i);
+              for(const j of current_transitions.keys()){
+                let value = row.get(j);
+                if(value.length === 0){
+                  row.set(j, null);
+                  continue;
+                }
+                if(value.length === 1){
+                  row.set(j, value[0]);
+                  continue;
+                }
+                row.set(j, "(" + value.join("|") + ")");
               }
             }
-            if(total_length > max_total_length){
+            return current_transitions;
+          }// end function delete_one_state_of()
+
+
+          function delete_some_states_of(
+            initial_transitions,
+            states_to_keep,
+          ){
+            step_calculus_element.innerHTML += (
+              "Trying to keep states:" + states_to_keep.join(",")
+              + "<br>\n"
+            );
+            let previous_transitions = initial_transitions;
+            let states_to_delete = [];
+            for(let state of initial_transitions.keys()){
+              if(states_to_keep.includes(state)){
+                continue;
+              }
+              states_to_delete.push(state);
+            }
+            while(states_to_delete.length > 0){
+              let deleted_state = states_to_delete.pop();
+              let current_transitions = delete_one_state_of(
+                previous_transitions,
+                deleted_state,
+              );
+              if(current_transitions === null){
+                return null;
+              }
+              all_transitions.push(current_transitions);
+              previous_transitions = current_transitions;
+              log_table_for_transitions(current_transitions);
+            }
+            return all_transitions[all_transitions.length - 1];
+          }
+
+          // We compute all walks from 0 state to some needed state.
+          let state_to_reduced_transitions = new Map();
+          for(let state of all_states_to_keep){
+            let reduced_transitions = delete_some_states_of(
+              initial_transitions,
+              [... new Set([0, state])],
+            );
+            if(reduced_transitions === null){
               break;
             }
-
-            for(let i = 0; i < number_of_states; ++i){
-              for(let j = 0; j < number_of_states; ++j){
-                if(current_transitions[i][j].length === 0){
-                  current_transitions[i][j] = null;
-                  continue;
-                }
-                if(current_transitions[i][j].length === 1){
-                  current_transitions[i][j] = (
-                    current_transitions[i][j][0]
-                  );
-                  continue;
-                }
-                current_transitions[i][j] = (
-                  "("
-                  + current_transitions[i][j].join("|")
-                  + ")"
-                );
-              }
-            }
-
-            all_transitions.push(current_transitions);
-            previous_transitions = current_transitions;
-            log_table_for_transitions(
-              current_transitions,
-              number_of_states,
+            state_to_reduced_transitions.set(
+              state,
+              reduced_transitions,
             );
           }
 
@@ -3380,11 +3502,50 @@
             );
           }
           else{
+            let walk_from_0_to_0 = (
+              "("
+              + state_to_reduced_transitions.get(0).get(0).get(0)
+              + some_contiguous_spaces_intra_number
+              + (has_a_decimal_separator
+                ? any_decimal_separator_regexp + "?"
+                + some_contiguous_spaces_intra_number
+                : ""
+                )
+              + ")*"
+            );
+            for(
+              const [state, transitions]
+              of state_to_reduced_transitions.entries()
+            ){
+              if(state === 0){
+                state_to_reduced_transitions.set(
+                  0,
+                  walk_from_0_to_0,
+                )
+                continue;
+              }
+              let walk_from_0_to = null;
+              if(transitions.get(0).get(state) !== null){
+                walk_from_0_to = (
+                  walk_from_0_to_0
+                  + transitions.get(0).get(state)
+                );
+              }
+              state_to_reduced_transitions.set(
+                0,
+                walk_from_0_to,
+              )
+            }
+
             if(offset >= 0){
               regular_expression_string += (
                 "(?="
+                // Zéro est valide
+                + "(?!.*" + any_positive_digit_regexp + ")"
+                // Sinon:
+                + "|"
                   + enclosed_any_sign_and_spaces_regexp + "?"
-                  + "(" + previous_transitions[0][0] + ")*"
+                  + walk_from_0_to_0
                   + get_regexp_with_minmax_repeat_and_spacing(
                     zero_digit_regexp,
                     offset,
@@ -3402,10 +3563,97 @@
               );
             }
             else{
-              error_message += (
-                "This value of step is not currently supported,"
-                + " sorry.\n"
-                + "<br>"
+              regular_expression_string += (
+                "(?="
+                // Zéro est valide
+                + "(?!.*" + any_positive_digit_regexp + ")"
+                // Sinon:
+                + "|("
+              );
+
+              function get_sub_possibilities(needed_states){
+                let sub_possibilities = [];
+                for(const state of needed_states){
+                  if(
+                    state_to_reduced_transitions.get(state) !== null
+                  ){
+                    sub_possibilities.push(
+                      state_to_reduced_transitions.get(state)
+                    );
+                  }
+                }
+                return sub_possibilities;
+              }
+
+              // We list the possibilities
+              let possibilities = [];
+              for(
+                const [current_offset, needed_states]
+                of needed_states_for_offset.entries()
+              ){
+                if(needed_states.length === 0){
+                  // No possibility
+                  continue;
+                }
+                let possibility = "";
+                if(needed_states.length === underlying_integer){
+                  // Any number with that precision
+                  // is a multiple of step.
+                  possibility = ".*";
+                }
+                else{
+                  let sub_possibilities = get_sub_possibilities(
+                    needed_states
+                  );
+                  if(sub_possibilities.length === 0){
+                    continue;
+                  }
+                  possibility += (
+                    enclosed_any_sign_and_spaces_regexp + "?"
+                    + walk_from_0_to_0
+                    + some_contiguous_spaces_intra_number
+                    + any_decimal_separator_regexp + "?"
+                    + some_contiguous_spaces_intra_number
+                    + (sub_possibilities.length === 1
+                      ? sub_possibilities[0]
+                      : "(" + sub_possibilities.join("|") + ")"
+                    )
+                  );
+                }
+
+                if(current_offset === 0){
+                  possibility += (
+                    "(?<!"
+                    + any_decimal_separator_regexp
+                    + ".*)"
+                  );
+                }
+                else{
+                  possibility += (
+                    "(?<="
+                    + any_decimal_separator_regexp
+                    + some_contiguous_spaces_intra_number
+                    + get_regexp_with_minmax_repeat_and_spacing(
+                      any_digit_regexp,
+                      -current_offset,
+                      -current_offset,
+                      some_contiguous_spaces_intra_number,
+                    )
+                    + some_contiguous_spaces_intra_number
+                    + ")"
+                    + zero_digit_any_time_regexp
+                  );
+                }
+                possibilities.push(possibility);
+              }
+              regular_expression_string += (
+                possibilities.join("|")
+              );
+
+              regular_expression_string += (
+                ")"
+                  + all_spaces_after_last_digit_regexp
+                + "$)"
               );
             }
           }
