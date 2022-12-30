@@ -141,6 +141,11 @@ spaces characters between digits after decimal separator,
 - a max (positive integer) number of contiguous digits,
 you can set both to 3 for thousands separators.
 
+There is also one parameter:
+
+- a choice to enclose simple groups in regular expression
+with capturing or non-capturing groups.
+
 app.html is hosted there on my website:
 <https://lyaudet.eu/laurent/DecimalsRangeRegexpGenerator/app.html>
 Since it is only static HTML and JS,
