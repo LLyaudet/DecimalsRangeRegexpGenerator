@@ -2876,7 +2876,8 @@
             if(number_of_digits_before_decimal_separator >= 0){
               if(number_of_digits_before_decimal_separator > 0){
                 result_regexp += (
-                  get_regexp_with_minmax_repeat_and_spacing(
+                  some_contiguous_spaces_intra_number
+                  + get_regexp_with_minmax_repeat_and_spacing(
                     any_digit_regexp,
                     number_of_digits_before_decimal_separator,
                     number_of_digits_before_decimal_separator,
