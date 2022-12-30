@@ -302,7 +302,7 @@
     </p>
     <div>
       <label for="digits">
-        Digits
+        Digits:
       </label>
       <input
         type="text"
@@ -321,7 +321,7 @@
     </div>
     <div>
       <label for="decimal_separators">
-        Decimal separators
+        Decimal separators:
       </label>
       <input
         type="text"
@@ -337,7 +337,7 @@
     </div>
     <div>
       <label for="plus_signs">
-        Plus signs
+        Plus signs:
       </label>
       <input
         type="text"
@@ -354,7 +354,7 @@
     </div>
     <div>
       <label for="minus_signs">
-        Minus signs
+        Minus signs:
       </label>
       <input
         type="text"
@@ -794,7 +794,7 @@
   <h4 id="test_your_result">Test your result</h4>
   <form action="javascript:test_validated()">
     <label for="test_string">
-      Test string
+      Test string:
     </label>
     <div>
       <input
@@ -1029,7 +1029,7 @@
               + "\""
               + " for " + parameter_name
               + " is incorrect (probably too big).\n"
-              + "<br>"
+              + "<br>\n"
             );
           }
         }
@@ -1167,7 +1167,7 @@
       let some_array = Array.from(parameters[parameter_name]);
       let unique_array = [... new Set(some_array)];
       if(some_array.length !== unique_array.length){
-        error_message += some_error_message + "\n<br>";
+        error_message += some_error_message + "\n<br>\n";
       }
       parameters[parameter_name] = unique_array;
     }
@@ -1230,7 +1230,7 @@
     if(parameters.digits.length < 2){
       error_message += (
         "You need at least two digits for positional notation.\n"
-        + "<br>"
+        + "<br>\n"
       );
     }
     for(let decimal_separator of parameters.decimal_separators){
@@ -1238,7 +1238,7 @@
         error_message += (
           "You gave a decimal separator that is a digit"
           + " (\"" + escapeHTML(decimal_separator) + "\").\n"
-          + "<br>"
+          + "<br>\n"
         );
       }
     }
@@ -1247,14 +1247,14 @@
         error_message += (
           "You gave a plus sign that is a digit"
           + " (\"" + escapeHTML(plus_sign) + "\").\n"
-          + "<br>"
+          + "<br>\n"
         );
       }
       if(parameters.decimal_separators.includes(plus_sign)){
         error_message += (
           "You gave a plus sign that is a decimal separator"
           + " (\"" + escapeHTML(plus_sign) + "\").\n"
-          + "<br>"
+          + "<br>\n"
         );
       }
     }
@@ -1263,21 +1263,21 @@
         error_message += (
           "You gave a minus sign that is a digit"
           + " (\"" + escapeHTML(minus_sign) + "\").\n"
-          + "<br>"
+          + "<br>\n"
         );
       }
       if(parameters.decimal_separators.includes(minus_sign)){
         error_message += (
           "You gave a minus sign that is a decimal separator"
           + " (\"" + escapeHTML(minus_sign) + "\").\n"
-          + "<br>"
+          + "<br>\n"
         );
       }
       if(parameters.plus_signs.includes(minus_sign)){
         error_message += (
           "You gave a minus sign that is a plus sign"
           + " (\"" + escapeHTML(minus_sign) + "\").\n"
-          + "<br>"
+          + "<br>\n"
         );
       }
     }
@@ -1296,7 +1296,7 @@
             + " (" + sub_type_of_space_characters + ")"
             + " that is a digit"
             + " (\"" + escapeHTML(space_character) + "\").\n"
-            + "<br>"
+            + "<br>\n"
           );
         }
         if(parameters.decimal_separators.includes(space_character)){
@@ -1305,7 +1305,7 @@
             + " (" + sub_type_of_space_characters + ")"
             + " that is a decimal separator"
             + " (\"" + escapeHTML(space_character) + "\").\n"
-            + "<br>"
+            + "<br>\n"
           );
         }
         if(parameters.plus_signs.includes(space_character)){
@@ -1314,7 +1314,7 @@
             + " (" + sub_type_of_space_characters + ")"
             + " that is a plus sign"
             + " (\"" + escapeHTML(space_character) + "\").\n"
-            + "<br>"
+            + "<br>\n"
           );
         }
         if(parameters.minus_signs.includes(space_character)){
@@ -1323,7 +1323,7 @@
             + " (" + sub_type_of_space_characters + ")"
             + " that is a minus sign"
             + " (\"" + escapeHTML(space_character) + "\").\n"
-            + "<br>"
+            + "<br>\n"
           );
         }
       }
@@ -1396,7 +1396,7 @@
             "You gave a " + number_name
             + " number with unknown character \"" + escapeHTML(digit)
             + "\".\n"
-            + "<br>"
+            + "<br>\n"
           );
           return null;
         }
@@ -1414,7 +1414,7 @@
             error_message += (
               "You gave a " + number_name
               + " number with wrong sign.\n"
-              + "<br>"
+              + "<br>\n"
             );
             return null;
           }
@@ -1447,7 +1447,7 @@
         error_message += (
           "You gave a " + number_name
           + " number with too many decimal separators.\n"
-          + "<br>"
+          + "<br>\n"
         );
         return null;
       }
@@ -1535,7 +1535,7 @@
         if(sign_signs.includes(parameters.step[0])){
           error_message += (
             "You gave a step with sign.\n"
-            + "<br>"
+            + "<br>\n"
           );
         }
         if(
@@ -1546,7 +1546,7 @@
             "You gave a zero step," +
             " but it does not mean epsilon step." +
             " It should stay empty instead.\n"
-            + "<br>"
+            + "<br>\n"
           );
         }
       }
@@ -1939,7 +1939,7 @@
         + "<span style=\"color: forestgreen\">"
         + escapeHTML(is_a_number_regexp)
         + "</span>"
-        + "<br>"
+        + "\n<br>\n"
         + "But read on to see the other constraints"
         + " you must add to it."
       );
@@ -3169,13 +3169,13 @@
 
           step_calculus_element.innerHTML = (
             "From step: "
-            + escapeHTML(parameters.step.join("")) + "<br>\n"
+            + escapeHTML(parameters.step.join("")) + "\n<br>\n"
             + "I found one underlying integer: "
-            + escapeHTML(underlying_integer_string) + "<br>\n"
+            + escapeHTML(underlying_integer_string) + "\n<br>\n"
             + "Its value in decimal is: "
-            + underlying_integer + "<br>\n"
+            + underlying_integer + "\n<br>\n"
             + "The offset to apply is: "
-            + offset + "<br>\n"
+            + offset + "\n<br>\n"
           );
 
           // We compute the transitions between congruences/states
@@ -3215,7 +3215,7 @@
             all_states_to_keep = [... new Set(all_states_to_keep)];
             let log = (
               "Given the decimal part,"
-              + " the following states will be needed:<br>\n"
+              + " the following states will be needed:\n<br>\n"
             );
             for(
               const [offset, states]
@@ -3224,13 +3224,13 @@
               log += (
                 "Offset: " + offset
                 + " needs states: " + states.join(",")
-                + ".<br>\n"
+                + ".\n<br>\n"
               );
             }
             log += (
               "Reduced to states: "
               + all_states_to_keep.join(",")
-              + ".<br>\n"
+              + ".\n<br>\n"
             )
             step_calculus_element.innerHTML += log;
           }
@@ -3304,7 +3304,7 @@
 
             table_string += (
                "</tbody></table>\n"
-               + "<br>\n"
+               + "\n<br>\n"
             )
             step_calculus_element.innerHTML += table_string;
           }
@@ -3437,7 +3437,7 @@
           ){
             step_calculus_element.innerHTML += (
               "Trying to keep states:" + states_to_keep.join(",")
-              + "<br>\n"
+              + "\n<br>\n"
             );
             let previous_transitions = initial_transitions;
             let states_to_delete = [];
@@ -3483,13 +3483,13 @@
             error_message += (
               "This value of step is not currently supported,"
               + " sorry.\n"
-              + "<br>"
+              + "<br>\n"
               + "Maximum length (" + max_total_length
               + ") of subregexps for steps was reached.\n"
-              + "<br>"
+              + "<br>\n"
               + "You will find below some intermediate"
               + " steps of calculus (of step... regexp ;) ).\n"
-              + "<br>"
+              + "<br>\n"
               + "You can modify the source code and try anyway."
               + " But I recommend saving all your work,"
               + " and using some web-browser where you have not"
