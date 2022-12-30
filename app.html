@@ -2708,12 +2708,11 @@
             }
           }
           if(
-            number_of_digits_before_decimal_separator === 0
+            number_of_digits_before_decimal_separator <= 0
             && i < some_number_array.length - 1
           ){
-            // The last digit before decimal separator is special
-            // since we must add it anyway,
-            // if there is a decimal part.
+            // From the last digit before decimal separator to the end,
+            // we must add it anyway with some zeros after.
             result_regexp += (
               "|" + common_prefix
               + some_contiguous_spaces_intra_number
@@ -2872,12 +2871,11 @@
             }
           }
           if(
-            number_of_digits_before_decimal_separator === 0
+            number_of_digits_before_decimal_separator <= 0
             && i < some_number_array.length - 1
           ){
-            // The last digit before decimal separator is special
-            // since we must add it anyway,
-            // if there is a decimal part.
+            // From the last digit before decimal separator to the end,
+            // we must add it anyway with some zeros after.
             result_regexp += (
               "|" + common_prefix
               + some_contiguous_spaces_intra_number
