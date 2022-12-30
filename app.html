@@ -1893,6 +1893,19 @@
           parameters.digits
         )
       );
+      let not_a_digit_regexp = "";
+      if(any_digit_regexp === "\\d"){
+        not_a_digit_regexp = "\\D";
+      }
+      else{
+        // Since there are at least two digits,
+        // we must have "[" and "]".
+        not_a_digit_regexp = (
+          any_digit_regexp.substring(0, 1)
+          + "^"
+          + any_digit_regexp.substring(1)
+        );
+      }
       let any_decimal_separator_regexp = (
         compute_regexp_for_any_character_in_array(
           parameters.decimal_separators
@@ -2667,7 +2680,7 @@
               some_contiguous_spaces_intra_number,
             )
             + enclose_regexp(
-              all_spaces_after_last_digit_regexp + "$|"
+              not_a_digit_regexp + "*|"
               + some_contiguous_spaces_intra_number
               + any_decimal_separator_regexp + ".*"
             )
@@ -2698,7 +2711,7 @@
                 );
               }
               result_regexp += enclose_regexp(
-                all_spaces_after_last_digit_regexp + "$|"
+                not_a_digit_regexp + "*|"
                 + some_contiguous_spaces_intra_number
                 + any_decimal_separator_regexp + ".*"
               );
@@ -2712,19 +2725,30 @@
             && i < some_number_array.length - 1
           ){
             // From the last digit before decimal separator to the end,
-            // we must add it anyway with some zeros after.
-            result_regexp += (
-              "|" + common_prefix
-              + some_contiguous_spaces_intra_number
-              + escapeRegExp(digit)
-              + enclose_regexp(
-                all_spaces_after_last_digit_regexp + "$|"
+            // we must add it anyway with some zeros after,
+            // or just the end of the string.
+            if(number_of_digits_before_decimal_separator === 0) {
+              result_regexp += (
+                "|" + common_prefix
                 + some_contiguous_spaces_intra_number
-                + any_decimal_separator_regexp
+                + escapeRegExp(digit)
+                + enclose_regexp(
+                  not_a_digit_regexp + "*|"
+                  + some_contiguous_spaces_intra_number
+                  + any_decimal_separator_regexp
+                  + some_contiguous_spaces_intra_number
+                  + zero_digit_any_time_regexp
+                )
+              );
+            }
+            else{
+              result_regexp += (
+                "|" + common_prefix
                 + some_contiguous_spaces_intra_number
-                + zero_digit_any_time_regexp
-              )
-            );
+                + escapeRegExp(digit)
+                + not_a_digit_regexp + "*"
+              );
+            }
           }
 
           // common prefix update
@@ -2831,7 +2855,7 @@
               some_contiguous_spaces_intra_number,
             )
             + enclose_regexp(
-              all_spaces_after_last_digit_regexp + "$|"
+              not_a_digit_regexp + "*|"
               + some_contiguous_spaces_intra_number
               + any_decimal_separator_regexp + ".*"
             )
@@ -2861,7 +2885,7 @@
                 );
               }
               result_regexp += enclose_regexp(
-                all_spaces_after_last_digit_regexp + "$|"
+                not_a_digit_regexp + "*|"
                 + some_contiguous_spaces_intra_number
                 + any_decimal_separator_regexp + ".*"
               );
@@ -2875,19 +2899,30 @@
             && i < some_number_array.length - 1
           ){
             // From the last digit before decimal separator to the end,
-            // we must add it anyway with some zeros after.
-            result_regexp += (
-              "|" + common_prefix
-              + some_contiguous_spaces_intra_number
-              + escapeRegExp(digit)
-              + enclose_regexp(
-                all_spaces_after_last_digit_regexp + "$|"
+            // we must add it anyway with some zeros after,
+            // or just the end of the string.
+            if(number_of_digits_before_decimal_separator === 0) {
+              result_regexp += (
+                "|" + common_prefix
                 + some_contiguous_spaces_intra_number
-                + any_decimal_separator_regexp
+                + escapeRegExp(digit)
+                + enclose_regexp(
+                  not_a_digit_regexp + "*|"
+                  + some_contiguous_spaces_intra_number
+                  + any_decimal_separator_regexp
+                  + some_contiguous_spaces_intra_number
+                  + zero_digit_any_time_regexp
+                )
+              );
+            }
+            else{
+              result_regexp += (
+                "|" + common_prefix
                 + some_contiguous_spaces_intra_number
-                + zero_digit_any_time_regexp
-              )
-            );
+                + escapeRegExp(digit)
+                + not_a_digit_regexp + "*"
+              );
+            }
           }
 
           common_prefix += some_contiguous_spaces_intra_number;
